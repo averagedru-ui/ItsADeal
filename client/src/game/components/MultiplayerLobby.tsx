@@ -127,8 +127,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({ onBack }) =>
 
   if (status === 'waiting') {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 flex flex-col items-center justify-center p-4">
-        <div className="bg-gray-800/80 backdrop-blur rounded-2xl p-6 md:p-8 w-full max-w-md border border-gray-700 shadow-2xl">
+      <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 flex flex-col items-center py-8 px-4 overflow-y-auto">
+        <div className="flex-shrink-0 my-auto bg-gray-800/80 backdrop-blur rounded-2xl p-6 md:p-8 w-full max-w-md border border-gray-700 shadow-2xl">
           <h2 className="text-white text-2xl font-bold mb-1 text-center">Lobby</h2>
           <p className="text-center text-gray-400 text-sm mb-4">
             Room Code: <span className="text-yellow-400 font-bold text-lg">{roomId}</span>
@@ -185,8 +185,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({ onBack }) =>
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 flex flex-col items-center justify-center p-4">
-      <div className="bg-gray-800/80 backdrop-blur rounded-2xl p-6 md:p-8 w-full max-w-md border border-gray-700 shadow-2xl">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 flex flex-col items-center py-8 px-4 overflow-y-auto">
+      <div className="flex-shrink-0 my-auto bg-gray-800/80 backdrop-blur rounded-2xl p-6 md:p-8 w-full max-w-md border border-gray-700 shadow-2xl">
         <h2 className="text-white text-2xl font-bold mb-1 text-center">Play Online</h2>
         <p className="text-gray-400 text-sm text-center mb-6">Create a room or join with a code</p>
 

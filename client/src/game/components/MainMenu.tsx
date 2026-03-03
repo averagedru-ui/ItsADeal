@@ -10,12 +10,13 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onMultiplayer }) => {
   const [playerCount, setPlayerCount] = useState(2);
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 flex flex-col items-center justify-center p-4">
-      <div className="text-center mb-8">
-        <h1 className="text-5xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 mb-2 tracking-tight">
+    <div className="min-h-screen bg-gradient-to-br from-gray-900 via-indigo-950 to-gray-900 flex flex-col items-center py-8 px-4 overflow-y-auto">
+      <div className="flex-shrink-0 my-auto w-full max-w-md flex flex-col items-center">
+      <div className="text-center mb-6">
+        <h1 className="text-4xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 mb-2 tracking-tight">
           CARD TYCOON
         </h1>
-        <p className="text-lg md:text-xl text-indigo-300 font-medium">
+        <p className="text-base md:text-xl text-indigo-300 font-medium">
           The Property Card Game
         </p>
       </div>
@@ -70,6 +71,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onMultiplayer }) => {
           PLAY WITH FRIENDS
         </button>
         <p className="text-gray-500 text-xs text-center mt-2">Share a link and play online together</p>
+      </div>
       </div>
     </div>
   );
