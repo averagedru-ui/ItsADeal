@@ -32,7 +32,7 @@ export const GameLog: React.FC = () => {
   }, [gameLog.length]);
 
   return (
-    <div className="fixed top-auto bottom-[calc(8.5rem+env(safe-area-inset-bottom))] left-2 z-30">
+    <div className="fixed top-auto bottom-[calc(10.5rem+env(safe-area-inset-bottom))] left-2 z-30">
       {isOpen ? (
         <motion.div
           initial={{ scale: 0.9, opacity: 0 }}

@@ -136,45 +136,49 @@ export const GameBoard: React.FC = () => {
         </div>
 
         <TableCenter />
+      </div>
 
-        {humanPlayer && (
-          <div className={`rounded-2xl border p-2.5 transition-all ${
-            isMyTurn
-              ? 'border-indigo-500/50 bg-indigo-500/5'
-              : 'border-gray-700/40 bg-gray-800/20'
-          }`}>
-            <div className="flex items-center gap-2 mb-2">
-              <div className={`w-8 h-8 rounded-full flex items-center justify-center text-sm font-bold transition-colors ${
+      {humanPlayer && (
+        <div className={`border-t px-2 py-1.5 transition-all ${
+          isMyTurn
+            ? 'border-indigo-500/40 bg-indigo-950/30'
+            : 'border-gray-800 bg-gray-900/50'
+        }`}>
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center text-[10px] font-bold ${
                 isMyTurn ? 'bg-indigo-500 text-white' : 'bg-gray-700 text-gray-300'
               }`}>
                 {humanPlayer.name[0]}
               </div>
-              <span className="text-white text-sm font-semibold">{humanPlayer.name}</span>
-              {isMyTurn && <span className="text-indigo-400 text-[10px] font-medium animate-pulse">Your Turn</span>}
+              <span className="text-white text-xs font-semibold">{humanPlayer.name}</span>
+              {isMyTurn && <span className="text-indigo-400 text-[9px] font-medium animate-pulse">Your Turn</span>}
             </div>
-
-            <PropertyArea player={humanPlayer} highlightComplete />
-
-            {humanPlayer.bank.length > 0 && (
-              <div className="mt-2 pt-1.5 border-t border-gray-700/30">
-                <div className="flex items-center gap-1 overflow-x-auto" style={{ WebkitOverflowScrolling: 'touch' }}>
-                  <span className="text-gray-500 text-[9px] flex-shrink-0">Bank:</span>
-                  {humanPlayer.bank.map((card, i) => (
-                    <div
-                      key={card.id}
-                      className="w-8 h-10 rounded-lg border border-emerald-600/40 bg-gradient-to-br from-emerald-800 to-emerald-950 flex items-center justify-center shadow-sm text-emerald-300 text-[8px] font-bold flex-shrink-0"
-                      style={{ marginLeft: i > 0 ? '-4px' : 0, zIndex: i }}
-                    >
-                      ${card.value}M
-                    </div>
-                  ))}
-                  <span className="text-emerald-400 text-[10px] font-bold ml-1 flex-shrink-0">${bankValue}M</span>
+            <div className="flex items-center gap-2">
+              {humanPlayer.bank.length > 0 && (
+                <div className="flex items-center gap-0.5">
+                  <div className="flex">
+                    {humanPlayer.bank.slice(0, 4).map((card, i) => (
+                      <div
+                        key={card.id}
+                        className="w-5 h-7 rounded border border-emerald-600/40 bg-gradient-to-br from-emerald-800 to-emerald-950 flex items-center justify-center text-emerald-300 text-[6px] font-bold"
+                        style={{ marginLeft: i > 0 ? '-3px' : 0, zIndex: i }}
+                      >
+                        ${card.value}M
+                      </div>
+                    ))}
+                    {humanPlayer.bank.length > 4 && (
+                      <span className="text-gray-500 text-[7px] ml-0.5">+{humanPlayer.bank.length - 4}</span>
+                    )}
+                  </div>
+                  <span className="text-emerald-400 text-[10px] font-bold">${bankValue}M</span>
                 </div>
-              </div>
-            )}
+              )}
+              <PropertyArea player={humanPlayer} compact highlightComplete />
+            </div>
           </div>
-        )}
-      </div>
+        </div>
+      )}
 
       <PlayerHand />
       <ActionPanel />

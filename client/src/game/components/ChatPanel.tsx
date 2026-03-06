@@ -43,7 +43,7 @@ export const ChatPanel: React.FC = () => {
   };
 
   return (
-    <div className="fixed bottom-[calc(8.5rem+env(safe-area-inset-bottom))] right-2 z-40">
+    <div className="fixed bottom-[calc(10.5rem+env(safe-area-inset-bottom))] right-2 z-40">
       {isOpen ? (
         <div className="w-64 h-72 bg-gray-900/95 backdrop-blur-sm border border-gray-700/50 rounded-2xl shadow-2xl flex flex-col overflow-hidden">
           <div className="flex items-center justify-between px-3 py-1.5 border-b border-gray-700/30 bg-gray-800/60">

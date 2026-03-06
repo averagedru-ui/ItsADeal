@@ -16,7 +16,7 @@ export const TableCenter: React.FC = () => {
   const topDiscard = discardPile.length > 0 ? discardPile[discardPile.length - 1] : null;
 
   return (
-    <div className="flex items-center justify-center gap-8 py-2">
+    <div className="flex items-center justify-center gap-10 py-3 mx-auto w-full max-w-xs">
       <div className="flex flex-col items-center gap-1">
         <div
           className={`relative ${canDraw ? 'cursor-pointer' : ''}`}
@@ -24,12 +24,12 @@ export const TableCenter: React.FC = () => {
         >
           {drawPile.length > 0 ? (
             <>
-              <div className="absolute top-0.5 left-0.5 w-[4.5rem] h-24 rounded-xl bg-indigo-950/80 border border-gray-700/50" />
-              <div className={`relative w-[4.5rem] h-24 rounded-xl border-2 bg-gradient-to-br from-indigo-800 to-purple-900 flex flex-col items-center justify-center shadow-md ${
+              <div className="absolute top-0.5 left-0.5 w-20 h-[6.5rem] rounded-xl bg-indigo-950/80 border border-gray-700/50" />
+              <div className={`relative w-20 h-[6.5rem] rounded-xl border-2 bg-gradient-to-br from-indigo-800 to-purple-900 flex flex-col items-center justify-center shadow-md ${
                 canDraw ? 'border-yellow-400 shadow-yellow-500/20' : 'border-gray-600/60'
               }`}>
-                <div className="text-xl opacity-50">🃏</div>
-                <div className="text-white text-[10px] font-bold mt-0.5">{drawPile.length}</div>
+                <div className="text-2xl opacity-50">🃏</div>
+                <div className="text-white text-xs font-bold mt-0.5">{drawPile.length}</div>
               </div>
               {canDraw && (
                 <motion.div
@@ -40,8 +40,8 @@ export const TableCenter: React.FC = () => {
               )}
             </>
           ) : (
-            <div className="w-[4.5rem] h-24 rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
-              <span className="text-gray-600 text-[10px]">Empty</span>
+            <div className="w-20 h-[6.5rem] rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
+              <span className="text-gray-600 text-xs">Empty</span>
             </div>
           )}
         </div>
@@ -55,8 +55,8 @@ export const TableCenter: React.FC = () => {
         {topDiscard ? (
           <CardComponent card={topDiscard} small />
         ) : (
-          <div className="w-[4.5rem] h-24 rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
-            <span className="text-gray-600 text-[10px]">Empty</span>
+          <div className="w-20 h-[6.5rem] rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
+            <span className="text-gray-600 text-xs">Empty</span>
           </div>
         )}
         <span className="text-gray-500 text-[10px] font-medium">

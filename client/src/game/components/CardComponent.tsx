@@ -40,15 +40,15 @@ const textColorMap: Record<PropertyColor, string> = {
 export const CardComponent: React.FC<CardComponentProps> = ({ card, onClick, selected, small, faceDown, disabled }) => {
   if (faceDown) {
     return (
-      <div className={`${small ? 'w-[4.5rem] h-24' : 'w-20 h-28 md:w-24 md:h-36'} rounded-xl border-2 border-gray-600 bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center shadow-md cursor-default select-none`}>
+      <div className={`${small ? 'w-20 h-[6.5rem]' : 'w-24 h-[8.5rem] md:w-28 md:h-40'} rounded-xl border-2 border-gray-600 bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center shadow-md cursor-default select-none`}>
         <div className="text-2xl opacity-50">🃏</div>
       </div>
     );
   }
 
   const sizeClasses = small
-    ? 'w-[4.5rem] h-24 text-[9px]'
-    : 'w-20 h-28 md:w-24 md:h-36 text-[10px] md:text-xs';
+    ? 'w-20 h-[6.5rem] text-[10px]'
+    : 'w-24 h-[8.5rem] md:w-28 md:h-40 text-xs md:text-sm';
   const baseClasses = `${sizeClasses} rounded-xl border-2 flex flex-col overflow-hidden shadow-md select-none`;
   const interactiveClasses = onClick && !disabled
     ? 'cursor-pointer active:scale-95'
@@ -64,10 +64,10 @@ export const CardComponent: React.FC<CardComponentProps> = ({ card, onClick, sel
         onClick={disabled ? undefined : onClick}
       >
         <div className="flex-1 flex flex-col items-center justify-center p-1">
-          <div className={`text-emerald-200 font-bold ${small ? 'text-base' : 'text-lg md:text-2xl'}`}>{card.name}</div>
-          <div className="text-emerald-400/70 text-[8px] uppercase font-semibold mt-0.5">Cash</div>
+          <div className={`text-emerald-200 font-bold ${small ? 'text-lg' : 'text-xl md:text-3xl'}`}>{card.name}</div>
+          <div className="text-emerald-400/70 text-[9px] uppercase font-semibold mt-0.5">Cash</div>
         </div>
-        <div className="bg-emerald-950/60 text-emerald-300 text-center py-0.5 font-mono text-[9px]">
+        <div className="bg-emerald-950/60 text-emerald-300 text-center py-0.5 font-mono text-[10px]">
           ${card.value}M
         </div>
       </div>
@@ -81,13 +81,13 @@ export const CardComponent: React.FC<CardComponentProps> = ({ card, onClick, sel
         className={`${baseClasses} ${interactiveClasses} ${selectedClasses} border-white/25 bg-gradient-to-br ${colorMap[color]}`}
         onClick={disabled ? undefined : onClick}
       >
-        <div className={`bg-white/20 text-center py-0.5 ${textColorMap[color]} font-bold uppercase tracking-wide text-[8px]`}>
+        <div className={`bg-white/20 text-center py-0.5 ${textColorMap[color]} font-bold uppercase tracking-wide ${small ? 'text-[9px]' : 'text-[10px]'}`}>
           {PROPERTY_SETS[color].label}
         </div>
-        <div className={`flex-1 flex items-center justify-center px-1 ${textColorMap[color]}`}>
-          <span className={`font-semibold text-center leading-tight ${small ? 'text-[8px]' : ''}`}>{card.name}</span>
+        <div className={`flex-1 flex items-center justify-center px-1.5 ${textColorMap[color]}`}>
+          <span className={`font-semibold text-center leading-tight ${small ? 'text-[9px]' : 'text-xs'}`}>{card.name}</span>
         </div>
-        <div className="bg-black/30 text-white text-center py-0.5 font-mono text-[8px]">
+        <div className={`bg-black/30 text-white text-center py-0.5 font-mono ${small ? 'text-[9px]' : 'text-[10px]'}`}>
           ${card.value}M
         </div>
       </div>
@@ -101,15 +101,15 @@ export const CardComponent: React.FC<CardComponentProps> = ({ card, onClick, sel
         className={`${baseClasses} ${interactiveClasses} ${selectedClasses} border-yellow-400/80 bg-gradient-to-br ${colors.length >= 2 ? colorMap[colors[0]] : 'from-gray-600 to-gray-800'}`}
         onClick={disabled ? undefined : onClick}
       >
-        <div className="bg-yellow-500 text-yellow-900 text-center py-0.5 font-bold uppercase tracking-wide text-[8px]">
+        <div className={`bg-yellow-500 text-yellow-900 text-center py-0.5 font-bold uppercase tracking-wide ${small ? 'text-[9px]' : 'text-[10px]'}`}>
           Wild
         </div>
         <div className="flex-1 flex flex-col items-center justify-center px-1 gap-0.5">
           {colors.map(c => (
-            <div key={c} className={`${textColorMap[c]} font-semibold text-[8px]`}>{PROPERTY_SETS[c].label}</div>
+            <div key={c} className={`${textColorMap[c]} font-semibold ${small ? 'text-[9px]' : 'text-[10px]'}`}>{PROPERTY_SETS[c].label}</div>
           ))}
         </div>
-        <div className="bg-black/30 text-white text-center py-0.5 font-mono text-[8px]">
+        <div className={`bg-black/30 text-white text-center py-0.5 font-mono ${small ? 'text-[9px]' : 'text-[10px]'}`}>
           ${card.value}M
         </div>
       </div>
@@ -152,14 +152,14 @@ export const CardComponent: React.FC<CardComponentProps> = ({ card, onClick, sel
         className={`${baseClasses} ${interactiveClasses} ${selectedClasses} bg-gradient-to-br ${actionColors[card.actionType || ''] || 'from-gray-600 to-gray-800 border-gray-400'}`}
         onClick={disabled ? undefined : onClick}
       >
-        <div className="bg-white/15 text-white text-center py-0.5 font-bold uppercase tracking-wide text-[7px]">
+        <div className={`bg-white/15 text-white text-center py-0.5 font-bold uppercase tracking-wide ${small ? 'text-[8px]' : 'text-[9px]'}`}>
           Action
         </div>
         <div className="flex-1 flex flex-col items-center justify-center px-1 text-white">
-          <div className={`${small ? 'text-sm' : 'text-lg md:text-xl'} mb-0.5`}>{actionEmoji[card.actionType || ''] || '⚡'}</div>
-          <div className={`font-bold text-center leading-tight ${small ? 'text-[7px]' : ''}`}>{card.name}</div>
+          <div className={`${small ? 'text-base' : 'text-xl md:text-2xl'} mb-0.5`}>{actionEmoji[card.actionType || ''] || '⚡'}</div>
+          <div className={`font-bold text-center leading-tight ${small ? 'text-[8px]' : 'text-[10px]'}`}>{card.name}</div>
         </div>
-        <div className="bg-black/30 text-white text-center py-0.5 font-mono text-[8px]">
+        <div className={`bg-black/30 text-white text-center py-0.5 font-mono ${small ? 'text-[9px]' : 'text-[10px]'}`}>
           ${card.value}M
         </div>
       </div>
