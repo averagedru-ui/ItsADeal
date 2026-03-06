@@ -16,7 +16,6 @@ export const PlayerHand: React.FC = () => {
   const playAction = useCardGame(s => s.playAction);
   const discard = useCardGame(s => s.discard);
   const endCurrentTurn = useCardGame(s => s.endCurrentTurn);
-  const draw = useCardGame(s => s.draw);
 
   const [selectedCard, setSelectedCard] = useState<Card | null>(null);
   const [showColorPicker, setShowColorPicker] = useState(false);
@@ -45,7 +44,6 @@ export const PlayerHand: React.FC = () => {
   const isMyTurn = currentPlayerIndex === myPlayerIndex;
   const canPlay = isMyTurn && phase === 'play';
   const mustDiscard = isMyTurn && phase === 'discard';
-  const canDraw = isMyTurn && phase === 'draw';
 
   const handleCardClick = (card: Card) => {
     if (mustDiscard) {
@@ -94,22 +92,12 @@ export const PlayerHand: React.FC = () => {
   const canPlayAsAction = selectedCard && selectedCard.type === 'action' && selectedCard.actionType !== 'just_say_no';
   const canBankIt = selectedCard !== null;
 
+  const cardCount = player.hand.length;
+  const overlapPx = cardCount <= 5 ? 70 : cardCount <= 8 ? 55 : cardCount <= 10 ? 45 : 36;
+  const totalWidth = cardCount > 0 ? (cardCount - 1) * overlapPx + 80 : 0;
+
   return (
     <div className="bg-gray-900/95 border-t border-gray-700 p-2 md:p-3">
-      {canDraw && (
-        <div className="flex justify-center mb-2">
-          <motion.button
-            initial={{ scale: 0.9 }}
-            animate={{ scale: [1, 1.05, 1] }}
-            transition={{ repeat: Infinity, duration: 1.5 }}
-            onClick={draw}
-            className="px-6 py-2 bg-gradient-to-r from-sky-500 to-blue-600 text-white font-bold rounded-lg hover:from-sky-400 hover:to-blue-500 active:scale-95 transition-all shadow-lg shadow-blue-500/30"
-          >
-            Draw 2 Cards
-          </motion.button>
-        </div>
-      )}
-
       {canPlay && (
         <div className="flex gap-2 justify-center mb-2 flex-wrap">
           <AnimatePresence>
@@ -167,25 +155,43 @@ export const PlayerHand: React.FC = () => {
         </div>
       )}
 
-      <div className="flex gap-1.5 md:gap-2 justify-center flex-wrap max-h-40 md:max-h-44 overflow-y-auto">
-        <AnimatePresence>
-          {player.hand.map((card, i) => (
-            <motion.div
-              key={card.id}
-              initial={{ opacity: 0, y: 30, scale: 0.8 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -30, scale: 0.8 }}
-              transition={{ duration: 0.3, delay: i * 0.03 }}
-            >
-              <CardComponent
-                card={card}
-                onClick={() => handleCardClick(card)}
-                selected={selectedCard?.id === card.id}
-                disabled={!canPlay && !mustDiscard && !canDraw}
-              />
-            </motion.div>
-          ))}
-        </AnimatePresence>
+      {mustDiscard && (
+        <div className="text-center mb-2">
+          <span className="text-red-400 text-sm font-bold animate-pulse">Select a card to discard (hand limit: 7)</span>
+        </div>
+      )}
+
+      <div className="flex justify-center overflow-x-auto pb-1">
+        <div className="relative" style={{ width: `${totalWidth}px`, height: '120px', minHeight: '120px' }}>
+          <AnimatePresence>
+            {player.hand.map((card, i) => {
+              const isSelected = selectedCard?.id === card.id;
+              return (
+                <motion.div
+                  key={card.id}
+                  initial={{ opacity: 0, y: 40, scale: 0.8 }}
+                  animate={{
+                    opacity: 1,
+                    y: isSelected ? -16 : 0,
+                    scale: isSelected ? 1.08 : 1,
+                  }}
+                  exit={{ opacity: 0, y: -30, scale: 0.8 }}
+                  transition={{ duration: 0.25, delay: i * 0.02 }}
+                  whileHover={!isSelected && (canPlay || mustDiscard) ? { y: -10, scale: 1.05 } : {}}
+                  className="absolute top-0"
+                  style={{ left: `${i * overlapPx}px`, zIndex: isSelected ? 50 : i }}
+                >
+                  <CardComponent
+                    card={card}
+                    onClick={() => handleCardClick(card)}
+                    selected={isSelected}
+                    disabled={!canPlay && !mustDiscard}
+                  />
+                </motion.div>
+              );
+            })}
+          </AnimatePresence>
+        </div>
         {player.hand.length === 0 && (
           <div className="text-gray-500 text-sm py-8">No cards in hand</div>
         )}

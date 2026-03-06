@@ -26,12 +26,13 @@ client/src/
       CardComponent.tsx     - Individual card rendering (property, money, action, wildcard)
       MainMenu.tsx          - Start screen: solo vs AI or multiplayer, resume saved game
       MultiplayerLobby.tsx  - Room creation/joining, lobby UI, invite link sharing, chat relay
-      GameBoard.tsx         - Main game layout with AI turn processing, menu, chat
+      GameBoard.tsx         - Main tabletop layout with draw/discard center, AI processing, menu, chat
       GameMenu.tsx          - In-game menu overlay (resume, save & quit, quit, profile stats)
       ChatPanel.tsx         - Multiplayer chat panel (collapsible, unread badge)
-      PlayerHand.tsx        - Player's hand with card selection and play options
-      PropertyArea.tsx      - Property set display for any player
-      OpponentArea.tsx      - Opponent info display
+      TableCenter.tsx       - Draw pile + discard pile as card stacks in center of board
+      PlayerHand.tsx        - Overlapping fanned card hand with hover-lift selection
+      PropertyArea.tsx      - Fanned card groups by color set (compact/full modes)
+      OpponentArea.tsx      - Opponent display with fanned properties, bank cards, hidden hand stack
       ActionPanel.tsx       - Modal UI for action card resolution (targeting, payments, Just Say No)
       GameLog.tsx           - Animated activity feed showing game events
       TurnBanner.tsx        - Animated turn announcement overlay
