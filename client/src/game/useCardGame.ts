@@ -18,6 +18,7 @@ import {
   getAIAction,
   getRentAmount,
 } from './engine';
+import { useProfile } from './useProfile';
 
 const SAVE_KEY = 'property_rush_save';
 
@@ -67,7 +68,7 @@ interface CardGameStore extends GameState {
   multiplayerWs: WebSocket | null;
   chatMessages: ChatMessage[];
   chatNextId: number;
-  startGame: (playerCount: number) => void;
+  startGame: (playerCount: number, playerName?: string) => void;
   draw: () => void;
   playToBank: (cardId: string) => void;
   playProperty: (cardId: string, color?: PropertyColor) => void;
@@ -122,9 +123,14 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
   chatMessages: [],
   chatNextId: 1,
 
-  startGame: (playerCount: number) => {
+  startGame: (playerCount: number, playerName?: string) => {
     clearSave();
+    const names = [playerName || 'You', 'Alex', 'Blake', 'Casey'].slice(0, playerCount);
     const state = initializeGame(playerCount);
+    if (playerName) {
+      state.players[0].name = playerName;
+    }
+    state.message = `${state.players[0].name}'s turn - Draw 2 cards`;
     set({ ...state, myPlayerIndex: 0, isMultiplayer: false, chatMessages: [], chatNextId: 1 });
     autoSave(state, false);
   },
@@ -172,6 +178,13 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
       return;
     }
     if (state.phase !== 'play') return;
+    const card = state.players[state.currentPlayerIndex]?.hand.find(c => c.id === cardId);
+    if (card && state.currentPlayerIndex === state.myPlayerIndex) {
+      useProfile.getState().setUsedAction();
+      if (card.actionType === 'deal_breaker') {
+        useProfile.getState().setUsedDealBreaker();
+      }
+    }
     const result = playActionCard(state, cardId);
     if ('needsTarget' in result) {
       set(result.state);
@@ -448,9 +461,13 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
   },
 
   sendChat: (text: string) => {
-    const ws = get().multiplayerWs;
+    const state = get();
+    const ws = state.multiplayerWs;
     if (ws && ws.readyState === WebSocket.OPEN) {
       ws.send(JSON.stringify({ type: 'send_chat', text }));
+    } else {
+      const playerName = state.players[state.myPlayerIndex]?.name || 'You';
+      state.addChatMessage({ sender: playerName, text, timestamp: Date.now() });
     }
   },
 

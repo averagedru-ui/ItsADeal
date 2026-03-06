@@ -185,7 +185,7 @@ export const GameBoard: React.FC = () => {
       <PlayerHand />
       <ActionPanel />
       <GameLog />
-      {isMultiplayer && <ChatPanel />}
+      <ChatPanel />
     </div>
   );
 };

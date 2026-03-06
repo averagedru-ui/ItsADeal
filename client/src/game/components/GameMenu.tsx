@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { useCardGame } from '../useCardGame';
 import { getCompleteSets, getTotalBankValue } from '../engine';
+import { RulesScreen } from './RulesScreen';
 
 export const GameMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [showRules, setShowRules] = useState(false);
   const players = useCardGame(s => s.players);
   const myPlayerIndex = useCardGame(s => s.myPlayerIndex);
   const isMultiplayer = useCardGame(s => s.isMultiplayer);
@@ -29,6 +31,14 @@ export const GameMenu: React.FC = () => {
     }
     returnToMenu();
   };
+
+  if (showRules) {
+    return (
+      <div className="fixed inset-0 z-50 bg-gray-900">
+        <RulesScreen onBack={() => setShowRules(false)} />
+      </div>
+    );
+  }
 
   return (
     <>
@@ -94,6 +104,13 @@ export const GameMenu: React.FC = () => {
                 className="w-full py-3.5 bg-indigo-600 active:bg-indigo-500 text-white font-bold rounded-2xl transition-colors text-sm"
               >
                 Resume Game
+              </button>
+
+              <button
+                onClick={() => { setIsOpen(false); setShowRules(true); }}
+                className="w-full py-3.5 bg-gray-700/80 active:bg-gray-600 text-gray-200 font-bold rounded-2xl transition-colors text-sm flex items-center justify-center gap-2"
+              >
+                <span>📖</span> Rules
               </button>
 
               {!isMultiplayer && (

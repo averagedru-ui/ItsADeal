@@ -22,13 +22,17 @@ client/src/
     cards.ts          - Re-exports from shared
     engine.ts         - Re-exports from shared
     useCardGame.ts    - Zustand store binding engine to React + multiplayer + save/load + chat
+    useProfile.ts     - Profile system (localStorage): name, stats, friends, quest progress
     components/
       CardComponent.tsx     - Individual card rendering (property, money, action, wildcard)
-      MainMenu.tsx          - Start screen: solo vs AI or multiplayer, resume saved game
+      MainMenu.tsx          - Start screen: solo vs AI or multiplayer, resume, rules/quests/profile buttons
       MultiplayerLobby.tsx  - Room creation/joining, lobby UI, invite link sharing, chat relay
       GameBoard.tsx         - Main tabletop layout with draw/discard center, AI processing, menu, chat
-      GameMenu.tsx          - In-game menu overlay (resume, save & quit, quit, profile stats)
-      ChatPanel.tsx         - Multiplayer chat panel (collapsible, unread badge)
+      GameMenu.tsx          - In-game menu overlay (resume, rules, save & quit, quit)
+      ChatPanel.tsx         - Chat panel (floating icon, works in solo + multiplayer)
+      RulesScreen.tsx       - Full game rules page (card types, turn structure, action details)
+      ProfileScreen.tsx     - Player profile (name edit, stats, friends list)
+      QuestScreen.tsx       - Quest/challenge list with progress tracking
       TableCenter.tsx       - Draw pile + discard pile as card stacks in center of board
       PlayerHand.tsx        - Overlapping fanned card hand with hover-lift selection
       PropertyArea.tsx      - Fanned card groups by color set (compact/full modes)
@@ -71,9 +75,15 @@ script/
 - 2-4 players per room
 - In-game chat via WebSocket (`send_chat` / `chat_message` message types)
 
+## Profile System
+- localStorage-backed player profile (name, stats, friends, quest progress)
+- Win/loss tracking with streak counter
+- Friends list (add/remove by name)
+- 10 quests with auto-completion tracking (first win, speed demon, pacifist, etc.)
+
 ## In-Game Menu
 - Hamburger menu icon in game header bar
-- Options: Resume, Save & Quit (solo only), Quit/Leave
+- Options: Resume, Rules, Save & Quit (solo only), Quit/Leave
 - Profile section showing player stats (sets, bank, cards)
 
 ## Tech Stack
