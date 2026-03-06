@@ -40,15 +40,15 @@ const textColorMap: Record<PropertyColor, string> = {
 export const CardComponent: React.FC<CardComponentProps> = ({ card, onClick, selected, small, faceDown, disabled }) => {
   if (faceDown) {
     return (
-      <div className={`${small ? 'w-20 h-[6.5rem]' : 'w-24 h-[8.5rem] md:w-28 md:h-40'} rounded-xl border-2 border-gray-600 bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center shadow-md cursor-default select-none`}>
+      <div className={`${small ? 'w-[5.5rem] h-[7.5rem]' : 'w-[6.5rem] h-[9.5rem] md:w-28 md:h-40'} rounded-xl border-2 border-gray-600 bg-gradient-to-br from-indigo-900 to-purple-900 flex items-center justify-center shadow-md cursor-default select-none`}>
         <div className="text-2xl opacity-50">🃏</div>
       </div>
     );
   }
 
   const sizeClasses = small
-    ? 'w-20 h-[6.5rem] text-[10px]'
-    : 'w-24 h-[8.5rem] md:w-28 md:h-40 text-xs md:text-sm';
+    ? 'w-[5.5rem] h-[7.5rem] text-[10px]'
+    : 'w-[6.5rem] h-[9.5rem] md:w-28 md:h-40 text-xs md:text-sm';
   const baseClasses = `${sizeClasses} rounded-xl border-2 flex flex-col overflow-hidden shadow-md select-none`;
   const interactiveClasses = onClick && !disabled
     ? 'cursor-pointer active:scale-95'

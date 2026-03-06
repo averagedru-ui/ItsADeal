@@ -103,7 +103,7 @@ export const PlayerHand: React.FC = () => {
   const canBankIt = selectedCard !== null;
 
   const cardCount = player.hand.length;
-  const cardWidth = 80;
+  const cardWidth = 88;
   const minOverlap = 28;
   const maxOverlap = cardWidth;
   const containerWidth = typeof window !== 'undefined' ? Math.min(window.innerWidth - 24, 640) : 360;
@@ -179,7 +179,7 @@ export const PlayerHand: React.FC = () => {
 
       <div className="flex justify-center overflow-x-auto pb-1 -mx-2 px-2"
            style={{ WebkitOverflowScrolling: 'touch' }}>
-        <div className="relative mx-auto" style={{ width: `${totalWidth}px`, height: '120px' }}>
+        <div className="relative mx-auto" style={{ width: `${totalWidth}px`, height: '135px' }}>
           <AnimatePresence>
             {player.hand.map((card, i) => {
               const isSelected = selectedCard?.id === card.id;

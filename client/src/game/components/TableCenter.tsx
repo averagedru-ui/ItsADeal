@@ -24,8 +24,8 @@ export const TableCenter: React.FC = () => {
         >
           {drawPile.length > 0 ? (
             <>
-              <div className="absolute top-0.5 left-0.5 w-20 h-[6.5rem] rounded-xl bg-indigo-950/80 border border-gray-700/50" />
-              <div className={`relative w-20 h-[6.5rem] rounded-xl border-2 bg-gradient-to-br from-indigo-800 to-purple-900 flex flex-col items-center justify-center shadow-md ${
+              <div className="absolute top-0.5 left-0.5 w-[5.5rem] h-[7.5rem] rounded-xl bg-indigo-950/80 border border-gray-700/50" />
+              <div className={`relative w-[5.5rem] h-[7.5rem] rounded-xl border-2 bg-gradient-to-br from-indigo-800 to-purple-900 flex flex-col items-center justify-center shadow-md ${
                 canDraw ? 'border-yellow-400 shadow-yellow-500/20' : 'border-gray-600/60'
               }`}>
                 <div className="text-2xl opacity-50">🃏</div>
@@ -40,7 +40,7 @@ export const TableCenter: React.FC = () => {
               )}
             </>
           ) : (
-            <div className="w-20 h-[6.5rem] rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
+            <div className="w-[5.5rem] h-[7.5rem] rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
               <span className="text-gray-600 text-xs">Empty</span>
             </div>
           )}
@@ -55,7 +55,7 @@ export const TableCenter: React.FC = () => {
         {topDiscard ? (
           <CardComponent card={topDiscard} small />
         ) : (
-          <div className="w-20 h-[6.5rem] rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
+          <div className="w-[5.5rem] h-[7.5rem] rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
             <span className="text-gray-600 text-xs">Empty</span>
           </div>
         )}
