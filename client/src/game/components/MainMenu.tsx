@@ -30,7 +30,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onMultiplayer }) => {
       <div className="flex-shrink-0 my-auto w-full max-w-md flex flex-col items-center">
       <div className="text-center mb-6">
         <h1 className="text-4xl md:text-7xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-400 via-amber-500 to-orange-500 mb-2 tracking-tight">
-          CARD TYCOON
+          PROPERTY RUSH
         </h1>
         <p className="text-base md:text-xl text-indigo-300 font-medium">
           The Property Card Game

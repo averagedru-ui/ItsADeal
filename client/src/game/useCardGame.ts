@@ -19,7 +19,7 @@ import {
   getRentAmount,
 } from './engine';
 
-const SAVE_KEY = 'card_tycoon_save';
+const SAVE_KEY = 'property_rush_save';
 
 function saveToLocalStorage(state: GameState) {
   try {
