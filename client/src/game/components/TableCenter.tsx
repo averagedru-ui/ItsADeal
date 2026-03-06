@@ -16,7 +16,7 @@ export const TableCenter: React.FC = () => {
   const topDiscard = discardPile.length > 0 ? discardPile[discardPile.length - 1] : null;
 
   return (
-    <div className="flex items-center justify-center gap-10 py-3 mx-auto w-full max-w-xs">
+    <div className="flex items-center justify-center gap-10 py-3 mx-auto w-full max-w-sm">
       <div className="flex flex-col items-center gap-1">
         <div
           className={`relative ${canDraw ? 'cursor-pointer' : ''}`}
@@ -24,8 +24,8 @@ export const TableCenter: React.FC = () => {
         >
           {drawPile.length > 0 ? (
             <>
-              <div className="absolute top-0.5 left-0.5 w-[5.5rem] h-[7.5rem] rounded-xl bg-indigo-950/80 border border-gray-700/50" />
-              <div className={`relative w-[5.5rem] h-[7.5rem] rounded-xl border-2 bg-gradient-to-br from-indigo-800 to-purple-900 flex flex-col items-center justify-center shadow-md ${
+              <div className="absolute top-0.5 left-0.5 w-[6.5rem] h-[9rem] rounded-xl bg-indigo-950/80 border border-gray-700/50" />
+              <div className={`relative w-[6.5rem] h-[9rem] rounded-xl border-2 bg-gradient-to-br from-indigo-800 to-purple-900 flex flex-col items-center justify-center shadow-md ${
                 canDraw ? 'border-yellow-400 shadow-yellow-500/20' : 'border-gray-600/60'
               }`}>
                 <div className="text-2xl opacity-50">🃏</div>
@@ -40,7 +40,7 @@ export const TableCenter: React.FC = () => {
               )}
             </>
           ) : (
-            <div className="w-[5.5rem] h-[7.5rem] rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
+            <div className="w-[6.5rem] h-[9rem] rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
               <span className="text-gray-600 text-xs">Empty</span>
             </div>
           )}
@@ -53,9 +53,9 @@ export const TableCenter: React.FC = () => {
 
       <div className="flex flex-col items-center gap-1">
         {topDiscard ? (
-          <CardComponent card={topDiscard} small />
+          <CardComponent card={topDiscard} />
         ) : (
-          <div className="w-[5.5rem] h-[7.5rem] rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
+          <div className="w-[6.5rem] h-[9rem] rounded-xl border-2 border-dashed border-gray-700/50 flex items-center justify-center">
             <span className="text-gray-600 text-xs">Empty</span>
           </div>
         )}
