@@ -8,12 +8,14 @@ import glsl from "vite-plugin-glsl";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
+const isReplit = !!process.env.REPL_ID;
+
 export default defineConfig({
   plugins: [
     react(),
-    runtimeErrorOverlay(),
-    glsl(), // Add GLSL shader support
-  ],
+    isReplit && runtimeErrorOverlay(),
+    glsl(),
+  ].filter(Boolean),
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "client", "src"),
