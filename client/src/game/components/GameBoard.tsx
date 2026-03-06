@@ -32,25 +32,31 @@ export const GameBoard: React.FC = () => {
   useEffect(() => {
     if (phase === 'game_over' || isMultiplayer) return;
 
-    const currentPlayer = players[currentPlayerIndex];
-    if (!currentPlayer?.isAI && phase !== 'action_response') return;
+    let shouldProcess = false;
 
     if (phase === 'action_response') {
       const responderId = pendingAction?.targetPlayerId;
       const responder = players.find(p => p.id === responderId);
-      if (!responder?.isAI) return;
+      if (responder?.isAI) shouldProcess = true;
+    } else if (phase === 'pay_debt') {
+      const responderId = pendingAction?.currentResponder;
+      if (responderId !== undefined) {
+        const responder = players.find(p => p.id === responderId);
+        if (responder?.isAI) shouldProcess = true;
+      }
+    } else {
+      const currentPlayer = players[currentPlayerIndex];
+      if (currentPlayer?.isAI) shouldProcess = true;
     }
 
-    if (phase === 'pay_debt' && pendingAction?.currentResponder !== undefined) {
-      const responder = players.find(p => p.id === pendingAction.currentResponder);
-      if (responder && !responder.isAI) return;
-    }
+    if (!shouldProcess) return;
 
     aiTimerRef.current = setTimeout(() => {
-      if (phase === 'draw') {
-        useCardGame.getState().draw();
+      const currentState = useCardGame.getState();
+      if (currentState.phase === 'draw') {
+        currentState.draw();
       } else {
-        processAITurns();
+        currentState.processAITurns();
       }
     }, 800);
 
@@ -58,20 +64,6 @@ export const GameBoard: React.FC = () => {
       if (aiTimerRef.current) clearTimeout(aiTimerRef.current);
     };
   }, [phase, currentPlayerIndex, turnNumber, cardsPlayedThisTurn, pendingAction?.currentResponder, pendingAction?.targetPlayerId]);
-
-  useEffect(() => {
-    if (isMultiplayer) return;
-    if (phase !== 'pay_debt') return;
-    if (pendingAction?.currentResponder === undefined) return;
-    const responder = players.find(p => p.id === pendingAction.currentResponder);
-    if (!responder?.isAI) return;
-
-    const timer = setTimeout(() => {
-      processAITurns();
-    }, 800);
-
-    return () => clearTimeout(timer);
-  }, [phase, pendingAction?.currentResponder]);
 
   if (phase === 'game_over') {
     return <GameOverScreen />;
