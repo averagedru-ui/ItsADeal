@@ -50,20 +50,20 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onMultiplayer, onRules, onPr
         </div>
 
         <div className="bg-gray-800/80 backdrop-blur rounded-2xl p-5 md:p-6 w-full max-w-md border border-gray-700 shadow-2xl">
-          <div className="flex items-center gap-3 mb-4 bg-gray-700/30 rounded-xl p-3" onClick={onProfile}>
-            <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg">
-              {playerName[0]?.toUpperCase()}
+          {playerName === 'Player' && (
+            <div className="flex items-center gap-3 mb-4 bg-gray-700/30 rounded-xl p-3" onClick={onProfile}>
+              <div className="w-10 h-10 rounded-full bg-indigo-600 flex items-center justify-center text-white font-bold text-lg">
+                {playerName[0]?.toUpperCase()}
+              </div>
+              <div className="flex-1">
+                <p className="text-white font-semibold text-sm">{playerName}</p>
+                <p className="text-gray-500 text-[10px]">Tap to set your name</p>
+              </div>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
+                <path d="M9 18l6-6-6-6" />
+              </svg>
             </div>
-            <div className="flex-1">
-              <p className="text-white font-semibold text-sm">{playerName}</p>
-              <p className="text-gray-500 text-[10px]">
-                {playerName === 'Player' ? 'Tap to set your name' : 'Tap to view profile'}
-              </p>
-            </div>
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-gray-500">
-              <path d="M9 18l6-6-6-6" />
-            </svg>
-          </div>
+          )}
 
           {savedInfo && (
             <button
