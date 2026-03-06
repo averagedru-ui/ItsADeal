@@ -51,7 +51,13 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({ onBack }) =>
     onPlayerLeft: (players, leftPlayer) => {
       setRoomPlayers(players);
     },
+    onHostChanged: (newIsHost) => {
+      setIsHost(newIsHost);
+    },
   };
+
+  const statusRef = useRef(status);
+  statusRef.current = status;
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -60,7 +66,8 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({ onBack }) =>
       setJoinCode(room);
     }
     return () => {
-      if (status === 'waiting' && getCurrentRoomId()) {
+      if (statusRef.current === 'waiting' && getCurrentRoomId()) {
+        fbLeaveRoom();
       }
     };
   }, []);

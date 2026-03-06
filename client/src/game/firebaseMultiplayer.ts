@@ -44,6 +44,7 @@ export interface FirebaseCallbacks {
   onChatMessage: (msg: { sender: string; text: string; timestamp: number }) => void;
   onError: (message: string) => void;
   onPlayerLeft: (players: string[], leftPlayer: string) => void;
+  onHostChanged: (isHost: boolean) => void;
 }
 
 let currentRoomId: string | null = null;
@@ -189,8 +190,10 @@ export async function joinRoom(
 }
 
 function setupRoomListeners(roomCode: string, sessionId: string, callbacks: FirebaseCallbacks) {
+  let previousPlayerNames: string[] = [];
+
   const playersRef = ref(db, `rooms/${roomCode}/players`);
-  const playersUnsub = onValue(playersRef, (snapshot) => {
+  const playersUnsub = onValue(playersRef, async (snapshot) => {
     const players = snapshot.val();
     if (!players) return;
     const playerList = Object.values(players) as { name: string; index: number; sessionId: string }[];
@@ -201,7 +204,30 @@ function setupRoomListeners(roomCode: string, sessionId: string, callbacks: Fire
       currentPlayerIndex = myEntry.index;
     }
 
-    callbacks.onPlayersChanged(playerList.map(p => p.name));
+    const currentNames = playerList.map(p => p.name);
+    const leftPlayers = previousPlayerNames.filter(n => !currentNames.includes(n));
+    for (const left of leftPlayers) {
+      callbacks.onPlayerLeft(currentNames, left);
+    }
+    previousPlayerNames = currentNames;
+
+    callbacks.onPlayersChanged(currentNames);
+
+    const roomSnap = await get(ref(db, `rooms/${roomCode}`));
+    if (!roomSnap.exists()) return;
+    const roomData = roomSnap.val();
+    const hostSession = roomData.hostSession;
+    const hostStillPresent = playerList.some(p => p.sessionId === hostSession);
+
+    if (!hostStillPresent && playerList.length > 0) {
+      const newHost = playerList[0];
+      await set(ref(db, `rooms/${roomCode}/host`), newHost.name);
+      await set(ref(db, `rooms/${roomCode}/hostSession`), newHost.sessionId);
+    }
+
+    const updatedRoomSnap = await get(ref(db, `rooms/${roomCode}/hostSession`));
+    const currentHostSession = updatedRoomSnap.val();
+    callbacks.onHostChanged(currentHostSession === sessionId);
   });
   unsubscribers.push(() => off(playersRef));
 
