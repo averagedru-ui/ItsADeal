@@ -37,6 +37,7 @@ export const ActionPanel: React.FC = () => {
 
   if (phase === 'action_response' && pendingAction?.targetPlayerId === myPlayerIndex) {
     const source = players.find(p => p.id === pendingAction.sourcePlayerId);
+    const isCounterJsn = (pendingAction as any).blockedPlayers?.length > 0;
     const hasJSN = humanPlayer.hand.some(c => c.actionType === 'just_say_no');
     const actionLabels: Record<string, string> = {
       debt_collector: 'Debt Collector ($5M)',
@@ -46,6 +47,45 @@ export const ActionPanel: React.FC = () => {
       rent: `Rent ($${pendingAction.amount}M)`,
       birthday: 'Birthday ($2M)',
     };
+
+    // Counter-JSN scenario: attacker (now shown as "target") can No the No
+    if (isCounterJsn) {
+      const blocker = players.find(p => (pendingAction as any).blockedPlayers?.includes(p.id));
+      return (
+        <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+          <motion.div
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            className="bg-gray-800 rounded-2xl p-5 md:p-6 max-w-md w-full border border-cyan-500/30 shadow-2xl shadow-cyan-500/10"
+          >
+            <div className="text-center mb-4">
+              <div className="text-3xl mb-2">🚫↔🚫</div>
+              <h3 className="text-white text-xl font-bold">Just Say No Standoff!</h3>
+              <p className="text-gray-400 text-sm mt-1">
+                <span className="text-cyan-400 font-semibold">{blocker?.name}</span> blocked your action with Just Say No!
+              </p>
+            </div>
+            <div className="flex flex-col gap-2">
+              {hasJSN && (
+                <button
+                  onClick={() => respondAction(true)}
+                  className="py-3 px-4 bg-gradient-to-r from-yellow-500 to-orange-600 text-white font-bold rounded-xl hover:from-yellow-400 hover:to-orange-500 active:scale-95 transition-all flex items-center justify-center gap-2 shadow-lg"
+                >
+                  <span className="text-xl">🚫</span>
+                  Counter with Just Say No!
+                </button>
+              )}
+              <button
+                onClick={() => respondAction(false)}
+                className="py-3 px-4 bg-gray-700 text-gray-300 font-semibold rounded-xl hover:bg-gray-600 active:scale-95 transition-all"
+              >
+                Accept the block
+              </button>
+            </div>
+          </motion.div>
+        </div>
+      );
+    }
 
     return (
       <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
@@ -76,7 +116,7 @@ export const ActionPanel: React.FC = () => {
               onClick={() => respondAction(false)}
               className="py-3 px-4 bg-gray-700 text-gray-300 font-semibold rounded-xl hover:bg-gray-600 active:scale-95 transition-all"
             >
-              {hasJSN ? 'Accept (Don\'t Block)' : 'Accept'}
+              {hasJSN ? "Accept (Don't Block)" : 'Accept'}
             </button>
           </div>
         </motion.div>
@@ -241,7 +281,18 @@ export const ActionPanel: React.FC = () => {
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
               <h3 className="text-white text-lg font-bold mb-3">No properties to steal!</h3>
-              <button onClick={() => selectTarget(0)} className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600">OK</button>
+              <button
+                onClick={() => {
+                  useCardGame.setState((s) => ({
+                    pendingAction: null,
+                    phase: 'play' as const,
+                    message: `Play up to 3 cards (${3 - s.cardsPlayedThisTurn} remaining)`,
+                  }));
+                }}
+                className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+              >
+                OK
+              </button>
             </motion.div>
           </div>
         );
@@ -283,7 +334,18 @@ export const ActionPanel: React.FC = () => {
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
               <h3 className="text-white text-lg font-bold mb-3">No properties to swap with!</h3>
-              <button onClick={() => selectTarget(0)} className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600">OK</button>
+              <button
+                onClick={() => {
+                  useCardGame.setState((s) => ({
+                    pendingAction: null,
+                    phase: 'play' as const,
+                    message: `Play up to 3 cards (${3 - s.cardsPlayedThisTurn} remaining)`,
+                  }));
+                }}
+                className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+              >
+                OK
+              </button>
             </motion.div>
           </div>
         );
@@ -323,7 +385,18 @@ export const ActionPanel: React.FC = () => {
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
               <h3 className="text-white text-lg font-bold mb-3">No complete sets to steal!</h3>
-              <button onClick={() => selectTarget(0)} className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600">OK</button>
+              <button
+                onClick={() => {
+                  useCardGame.setState((s) => ({
+                    pendingAction: null,
+                    phase: 'play' as const,
+                    message: `Play up to 3 cards (${3 - s.cardsPlayedThisTurn} remaining)`,
+                  }));
+                }}
+                className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+              >
+                OK
+              </button>
             </motion.div>
           </div>
         );
@@ -356,13 +429,58 @@ export const ActionPanel: React.FC = () => {
         ? ownedColors
         : (pendingAction.card?.colors || []).filter(c => ownedColors.includes(c));
 
+      const isWildRent = pendingAction.type === 'wild_rent';
+      const doubleRentActive = (useCardGame.getState() as any).pendingDoubleRent > 0;
+
+      // For Wild Rent, if a color is already chosen (stored in pendingAction.selectedProperty), show player picker
+      const chosenColor = (pendingAction as any).chosenRentColor as PropertyColor | undefined;
+
+      if (isWildRent && chosenColor) {
+        // Step 2: pick which player to charge
+        const opponents = players.filter(p => p.id !== myPlayerIndex);
+        return (
+          <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
+            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
+              <h3 className="text-white text-lg font-bold mb-1">Choose a player to charge</h3>
+              <p className="text-gray-400 text-sm mb-3">
+                {PROPERTY_SETS[chosenColor].label} rent: ${getRentAmount(humanPlayer, chosenColor)}M
+                {doubleRentActive && <span className="text-yellow-400 font-bold ml-1">(×2 doubled!)</span>}
+              </p>
+              <div className="flex flex-col gap-2">
+                {opponents.map(opp => (
+                  <button key={opp.id} onClick={() => selectTarget(opp.id, chosenColor)}
+                    className="py-3 px-4 rounded-xl bg-gray-700 text-white font-semibold hover:bg-gray-600 active:scale-95 flex justify-between items-center transition-all">
+                    <span>{opp.name}</span>
+                    <span className="text-emerald-400 text-sm">Bank: ${getTotalBankValue(opp)}M</span>
+                  </button>
+                ))}
+              </div>
+            </motion.div>
+          </div>
+        );
+      }
+
       return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
           <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
-            <h3 className="text-white text-lg font-bold mb-3">Choose a color to charge rent on</h3>
+            <h3 className="text-white text-lg font-bold mb-1">
+              {isWildRent ? 'Wild Rent — Choose a color' : 'Choose a color to charge rent on'}
+            </h3>
+            {isWildRent && <p className="text-gray-400 text-xs mb-2">You'll then choose which player pays</p>}
+            {doubleRentActive && <p className="text-yellow-400 text-xs font-bold mb-2">🎉 Double Rent active! Rent will be doubled!</p>}
             <div className="flex flex-col gap-2">
               {availableColors.map(color => (
-                <button key={color} onClick={() => selectTarget(humanPlayer.id, color)}
+                <button key={color}
+                  onClick={() => {
+                    if (isWildRent) {
+                      // Store chosen color in pendingAction for next step
+                      useCardGame.setState(s => ({
+                        pendingAction: s.pendingAction ? { ...s.pendingAction, chosenRentColor: color } as any : null,
+                      }));
+                    } else {
+                      selectTarget(humanPlayer.id, color);
+                    }
+                  }}
                   className="py-3 px-4 rounded-xl bg-gray-700 text-white font-semibold hover:bg-gray-600 active:scale-95 flex justify-between items-center transition-all">
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full ${PROPERTY_SETS[color].bgClass}`} />
@@ -374,7 +492,18 @@ export const ActionPanel: React.FC = () => {
               {availableColors.length === 0 && (
                 <>
                   <p className="text-gray-400 text-sm">No matching properties to charge rent on!</p>
-                  <button onClick={() => selectTarget(0)} className="py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600">OK</button>
+                  <button
+                    onClick={() => {
+                      useCardGame.setState((s) => ({
+                        pendingAction: null,
+                        phase: 'play' as const,
+                        message: `Play up to 3 cards (${3 - s.cardsPlayedThisTurn} remaining)`,
+                      }));
+                    }}
+                    className="py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+                  >
+                    OK
+                  </button>
                 </>
               )}
             </div>
