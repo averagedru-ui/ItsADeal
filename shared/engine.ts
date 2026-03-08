@@ -521,7 +521,31 @@ function performForcedDeal(state: GameState, sourceId: number, targetId: number,
   return returnToPlay(state);
 }
 
-export function resolveDebtPayment(state: GameState, payerId: number, cardIds: string[]): GameState {
+export function cancelPendingAction(state: GameState): GameState {
+  const newState = deepCopy(state);
+  const action = newState.pendingAction;
+  if (!action) return state;
+
+  const player = newState.players.find((p: Player) => p.id === action.sourcePlayerId)!;
+
+  // Return the card from discard pile back to hand
+  if (action.card) {
+    const discardIdx = newState.discardPile.findIndex((c: Card) => c.id === action.card!.id);
+    if (discardIdx !== -1) {
+      const [card] = newState.discardPile.splice(discardIdx, 1);
+      player.hand.push(card);
+      newState.cardsPlayedThisTurn--;
+      addLog(newState, `${player.name} cancelled the action`, 'system');
+    }
+  }
+
+  newState.pendingAction = null;
+  newState.phase = 'play';
+  newState.message = player.isAI
+    ? `${player.name} is thinking...`
+    : `Play up to 3 cards (${3 - newState.cardsPlayedThisTurn} remaining)`;
+  return newState;
+}
   const newState = deepCopy(state);
   const payer = newState.players.find((p: Player) => p.id === payerId)!;
   const receiver = newState.players.find((p: Player) => p.id === newState.pendingAction!.sourcePlayerId)!;
