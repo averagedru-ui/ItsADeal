@@ -142,7 +142,7 @@ export const MainMenu: React.FC<MainMenuProps> = ({ onMultiplayer, onRules, onPr
             </button>
           </div>
         </div>
-        <p className="text-gray-600 text-[10px] mt-3">v1.1.1</p>
+        <p className="text-gray-600 text-[10px] mt-3">v1.1.2</p>
       </div>
     </div>
   );
