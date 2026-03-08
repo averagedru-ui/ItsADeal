@@ -18,6 +18,7 @@ import {
   getAIAction,
   getRentAmount,
   getCompleteSets,
+  getTotalAssetValue,
   proposeTrade,
   resolveTradeResponse,
 } from './engine';
@@ -480,13 +481,23 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
             newState = resolveTargetAction(result.state, targetId, aiAction.targetColor, aiAction.targetCardId);
             set(newState);
           } else {
-            const rentColors = result.state.pendingAction?.card?.colors;
+            const rentCard = result.state.pendingAction?.card;
+            const rentColors = rentCard?.colors;
+            const actionType = result.state.pendingAction?.type;
             if (rentColors && rentColors.length > 0) {
               const ownedColors = rentColors.filter((c: PropertyColor) => player.properties[c].length > 0);
               if (ownedColors.length > 0) {
                 const best = ownedColors.reduce((b: PropertyColor, c: PropertyColor) =>
                   getRentAmount(player, c) > getRentAmount(player, b) ? c : b, ownedColors[0]);
-                newState = resolveTargetAction(result.state, player.id, best);
+                // For wild_rent, target the richest opponent
+                if (actionType === 'wild_rent') {
+                  const richest = state.players
+                    .filter(p => p.id !== player.id && getTotalAssetValue(p) > 0)
+                    .sort((a, b) => getTotalAssetValue(b) - getTotalAssetValue(a))[0];
+                  newState = resolveTargetAction(result.state, richest?.id ?? state.players.find(p => p.id !== player.id)!.id, best);
+                } else {
+                  newState = resolveTargetAction(result.state, player.id, best);
+                }
                 set(newState);
               } else {
                 newState = endTurn(result.state);
