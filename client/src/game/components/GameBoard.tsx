@@ -176,7 +176,7 @@ export const GameBoard: React.FC = () => {
                   <span className="text-emerald-400 text-[10px] font-bold">${bankValue}M</span>
                 </div>
               )}
-              <PropertyArea player={humanPlayer} compact highlightComplete />
+              <PropertyArea player={humanPlayer} compact highlightComplete isMyBoard />
             </div>
           </div>
         </div>
