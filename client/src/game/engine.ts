@@ -18,4 +18,5 @@ export {
   getAIAction,
   proposeTrade,
   resolveTradeResponse,
+  cancelPendingAction,
 } from '@shared/engine';
