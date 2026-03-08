@@ -94,7 +94,7 @@ export function createDeck(): Card[] {
   for (let i = 0; i < 2; i++) deck.push(actionCard('Deal Breaker', 5, 'deal_breaker', 'Steal a complete property set'));
   for (let i = 0; i < 3; i++) deck.push(actionCard('Just Say No', 4, 'just_say_no', 'Cancel any action against you'));
   for (let i = 0; i < 3; i++) deck.push(actionCard('House', 3, 'house', 'Add to a complete set: +$3M rent'));
-  for (let i = 0; i < 2; i++) deck.push(actionCard('Hotel', 4, 'hotel', 'Add to a set with house: +$4M rent'));
+  for (let i = 0; i < 3; i++) deck.push(actionCard('Hotel', 4, 'hotel', 'Add to a set with house: +$4M rent'));
 
   deck.push(actionCard('Rent: Brown/Teal', 1, 'rent', 'Charge rent on Brown or Teal', ['brown', 'teal']));
   deck.push(actionCard('Rent: Brown/Teal', 1, 'rent', 'Charge rent on Brown or Teal', ['brown', 'teal']));
