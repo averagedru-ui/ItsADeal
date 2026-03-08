@@ -831,6 +831,38 @@ export function resolveActionResponse(state: GameState, useJustSayNo: boolean): 
   return returnToPlay(newState);
 }
 
+export function reassignWildcard(state: GameState, playerId: number, cardId: string, newColor: PropertyColor): GameState {
+  const newState = deepCopy(state);
+  const player = newState.players.find((p: Player) => p.id === playerId)!;
+
+  // Find the card in any color slot
+  let foundColor: PropertyColor | null = null;
+  let cardIndex = -1;
+  for (const color of Object.keys(player.properties) as PropertyColor[]) {
+    const idx = player.properties[color].findIndex((c: Card) => c.id === cardId);
+    if (idx !== -1) {
+      foundColor = color;
+      cardIndex = idx;
+      break;
+    }
+  }
+
+  if (!foundColor || cardIndex === -1) return state;
+
+  const card = player.properties[foundColor][cardIndex];
+  if (card.type !== 'wildcard') return state;
+  if (!card.colors?.includes(newColor)) return state;
+  if (foundColor === newColor) return state;
+
+  // Move card to new color slot
+  player.properties[foundColor].splice(cardIndex, 1);
+  card.color = newColor;
+  player.properties[newColor].push(card);
+
+  addLog(newState, `${player.name} moved wild card to ${PROPERTY_SETS[newColor].label}`, 'property');
+  return newState;
+}
+
 export function endTurn(state: GameState): GameState {
   const newState = deepCopy(state);
   const currentPlayer = newState.players[newState.currentPlayerIndex];
