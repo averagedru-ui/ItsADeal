@@ -19,4 +19,5 @@ export {
   proposeTrade,
   resolveTradeResponse,
   cancelPendingAction,
+  reassignWildcard,
 } from '@shared/engine';
