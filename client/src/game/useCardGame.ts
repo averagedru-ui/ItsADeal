@@ -20,6 +20,7 @@ import {
   getCompleteSets,
   getTotalAssetValue,
   cancelPendingAction,
+  reassignWildcard,
   proposeTrade,
   resolveTradeResponse,
 } from './engine';
@@ -95,6 +96,7 @@ interface CardGameStore extends GameState {
   startTrade: (trade: TradeProposal) => void;
   respondTrade: (accepted: boolean) => void;
   cancelAction: () => void;
+  reassignWild: (cardId: string, newColor: PropertyColor) => void;
   processAITurns: () => void;
   setMultiplayerState: (state: Partial<GameState>, playerIndex: number) => void;
   setMultiplayerWs: (ws: WebSocket | null) => void;
@@ -374,6 +376,20 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
       return;
     }
     const newState = cancelPendingAction(state);
+    set(newState);
+    autoSave(newState, false);
+  },
+
+  reassignWild: (cardId: string, newColor: PropertyColor) => {
+    const state = get();
+    const humanPlayer = state.players[state.myPlayerIndex];
+    if (!humanPlayer) return;
+    if (state.isMultiplayer) {
+      const newState = reassignWildcard(state, humanPlayer.id, cardId, newColor);
+      processAndSyncMultiplayer(newState, get, set);
+      return;
+    }
+    const newState = reassignWildcard(state, humanPlayer.id, cardId, newColor);
     set(newState);
     autoSave(newState, false);
   },
