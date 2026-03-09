@@ -326,12 +326,16 @@ export const ActionPanel: React.FC = () => {
     if (pendingAction.type === 'forced_deal' && pendingAction.offeredProperty) {
       const opponents = players.filter(p => p.id !== humanPlayer.id);
       const stealable: { playerId: number; playerName: string; color: PropertyColor; cardId: string; cardName: string }[] = [];
+      const allOpponentProps: { playerId: number; playerName: string; color: PropertyColor; cardId: string; cardName: string; isComplete: boolean }[] = [];
       for (const opp of opponents) {
         const completeSets = getCompleteSets(opp);
         for (const color of Object.keys(opp.properties) as PropertyColor[]) {
-          if (completeSets.includes(color)) continue;
           for (const card of opp.properties[color]) {
-            stealable.push({ playerId: opp.id, playerName: opp.name, color, cardId: card.id, cardName: card.name });
+            const isComplete = completeSets.includes(color);
+            allOpponentProps.push({ playerId: opp.id, playerName: opp.name, color, cardId: card.id, cardName: card.name, isComplete });
+            if (!isComplete) {
+              stealable.push({ playerId: opp.id, playerName: opp.name, color, cardId: card.id, cardName: card.name });
+            }
           }
         }
       }
@@ -340,18 +344,14 @@ export const ActionPanel: React.FC = () => {
         return (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
             <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
-              <h3 className="text-white text-lg font-bold mb-3">No properties to swap with!</h3>
-              <button
-                onClick={() => {
-                  useCardGame.setState((s) => ({
-                    pendingAction: null,
-                    phase: 'play' as const,
-                    message: `Play up to 3 cards (${3 - s.cardsPlayedThisTurn} remaining)`,
-                  }));
-                }}
-                className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
-              >
-                OK
+              <h3 className="text-white text-lg font-bold mb-2">No properties to swap!</h3>
+              <p className="text-gray-400 text-xs mb-3">
+                {allOpponentProps.length === 0
+                  ? 'Opponents have no properties yet.'
+                  : 'All opponent properties are in complete sets and cannot be taken.'}
+              </p>
+              <button onClick={cancelAction} className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600">
+                Cancel
               </button>
             </motion.div>
           </div>
