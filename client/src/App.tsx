@@ -21,11 +21,11 @@ function App() {
     }
   }, []);
 
-  if (phase !== 'menu' || isMultiplayer) {
+  if (phase !== 'menu') {
     return <GameBoard />;
   }
 
-  if (screen === 'multiplayer') {
+  if (screen === 'multiplayer' || isMultiplayer) {
     return <MultiplayerLobby onBack={() => setScreen('menu')} />;
   }
 
