@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { MainMenu } from './game/components/MainMenu';
+import { CardHouseHome } from './game/components/CardHouseHome';
 import { MultiplayerLobby } from './game/components/MultiplayerLobby';
 import { GameBoard } from './game/components/GameBoard';
 import { RulesScreen } from './game/components/RulesScreen';
@@ -7,12 +7,13 @@ import { ProfileScreen } from './game/components/ProfileScreen';
 import { QuestScreen } from './game/components/QuestScreen';
 import { useCardGame } from './game/useCardGame';
 
-type Screen = 'menu' | 'multiplayer' | 'rules' | 'profile' | 'quests';
+type Screen = 'home' | 'multiplayer' | 'rules' | 'profile' | 'quests';
 
 function App() {
   const phase = useCardGame(s => s.phase);
   const isMultiplayer = useCardGame(s => s.isMultiplayer);
-  const [screen, setScreen] = useState<Screen>('menu');
+  const startGame = useCardGame(s => s.startGame);
+  const [screen, setScreen] = useState<Screen>('home');
 
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -26,24 +27,25 @@ function App() {
   }
 
   if (screen === 'multiplayer' || isMultiplayer) {
-    return <MultiplayerLobby onBack={() => setScreen('menu')} />;
+    return <MultiplayerLobby onBack={() => setScreen('home')} />;
   }
 
   if (screen === 'rules') {
-    return <RulesScreen onBack={() => setScreen('menu')} />;
+    return <RulesScreen onBack={() => setScreen('home')} />;
   }
 
   if (screen === 'profile') {
-    return <ProfileScreen onBack={() => setScreen('menu')} />;
+    return <ProfileScreen onBack={() => setScreen('home')} />;
   }
 
   if (screen === 'quests') {
-    return <QuestScreen onBack={() => setScreen('menu')} />;
+    return <QuestScreen onBack={() => setScreen('home')} />;
   }
 
   return (
-    <MainMenu
-      onMultiplayer={() => setScreen('multiplayer')}
+    <CardHouseHome
+      onPlayItsADeal={(playerCount, playerName) => startGame(playerCount, playerName)}
+      onMultiplayerItsADeal={() => setScreen('multiplayer')}
       onRules={() => setScreen('rules')}
       onProfile={() => setScreen('profile')}
       onQuests={() => setScreen('quests')}
