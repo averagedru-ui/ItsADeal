@@ -77,6 +77,14 @@ export const GameBoard: React.FC = () => {
 
   const humanPlayer = players[myPlayerIndex];
   const opponents = players.filter((_, i) => i !== myPlayerIndex);
+
+  if (!humanPlayer) {
+    return (
+      <div className="h-[100dvh] flex items-center justify-center bg-gray-900">
+        <div className="text-gray-500 text-sm">Loading...</div>
+      </div>
+    );
+  }
   const completeSets = humanPlayer ? getCompleteSets(humanPlayer) : [];
   const bankValue = humanPlayer ? getTotalBankValue(humanPlayer) : 0;
   const isMyTurn = currentPlayerIndex === myPlayerIndex;
