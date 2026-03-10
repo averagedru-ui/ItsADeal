@@ -519,7 +519,6 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
               if (ownedColors.length > 0) {
                 const best = ownedColors.reduce((b: PropertyColor, c: PropertyColor) =>
                   getRentAmount(player, c) > getRentAmount(player, b) ? c : b, ownedColors[0]);
-                // For wild_rent, target the richest opponent
                 if (actionType === 'wild_rent') {
                   const richest = state.players
                     .filter(p => p.id !== player.id && getTotalAssetValue(p) > 0)
@@ -530,12 +529,48 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
                 }
                 set(newState);
               } else {
+                // No owned colors matching rent card — end turn instead of getting stuck
                 newState = endTurn(result.state);
                 set(newState);
               }
+            } else if (actionType === 'forced_deal') {
+              // AI forced deal: pick a random own property and random opponent property
+              const ownProps: { color: PropertyColor; cardId: string }[] = [];
+              for (const color of Object.keys(player.properties) as PropertyColor[]) {
+                for (const card of player.properties[color]) {
+                  ownProps.push({ color, cardId: card.id });
+                }
+              }
+              const oppProps: { playerId: number; color: PropertyColor; cardId: string }[] = [];
+              for (const opp of state.players.filter(p => p.id !== player.id)) {
+                const completeSetsOpp = getCompleteSets(opp);
+                for (const color of Object.keys(opp.properties) as PropertyColor[]) {
+                  if (completeSetsOpp.includes(color)) continue;
+                  for (const card of opp.properties[color]) {
+                    oppProps.push({ playerId: opp.id, color, cardId: card.id });
+                  }
+                }
+              }
+              if (ownProps.length > 0 && oppProps.length > 0) {
+                const myPick = ownProps[0];
+                const theirPick = oppProps[0];
+                // Set offered property then resolve
+                const midState = {
+                  ...result.state,
+                  pendingAction: {
+                    ...result.state.pendingAction!,
+                    offeredProperty: { color: myPick.color, card: player.properties[myPick.color].find(c => c.id === myPick.cardId)! },
+                  },
+                };
+                newState = resolveTargetAction(midState as any, theirPick.playerId, theirPick.color, theirPick.cardId);
+              } else {
+                newState = endTurn(result.state);
+              }
+              set(newState);
             } else {
-              set(result.state);
-              newState = result.state;
+              // Unknown needsTarget action — end turn safely
+              newState = endTurn(result.state);
+              set(newState);
             }
           }
         } else {
