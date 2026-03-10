@@ -409,3 +409,66 @@ function deserializeGameState(data: any): GameState | null {
     return null;
   }
 }
+
+export async function rejoinRoom(
+  roomCode: string,
+  playerName: string,
+  callbacks: FirebaseCallbacks
+): Promise<{ success: boolean; isHost: boolean; error?: string }> {
+  const roomRef = ref(db, `rooms/${roomCode}`);
+  const snapshot = await get(roomRef);
+
+  if (!snapshot.exists()) {
+    return { success: false, isHost: false, error: 'Room not found' };
+  }
+
+  const roomData = snapshot.val() as FirebaseRoom;
+
+  if (roomData.isStarted) {
+    return { success: false, isHost: false, error: 'Game already started' };
+  }
+
+  const players = roomData.players ? Object.values(roomData.players) as { name: string; index: number; sessionId: string }[] : [];
+  const existingPlayer = players.find(p => p.name === playerName);
+
+  if (existingPlayer) {
+    // Already in room — re-setup listeners with existing session
+    const sessionId = generateSessionId();
+    currentRoomId = roomCode;
+    currentSessionId = sessionId;
+    currentPlayerName = playerName;
+    currentPlayerIndex = existingPlayer.index;
+
+    // Update our session ID
+    const playersRef = ref(db, `rooms/${roomCode}/players`);
+    const pSnap = await get(playersRef);
+    if (pSnap.exists()) {
+      const pData = pSnap.val();
+      for (const [key, p] of Object.entries(pData)) {
+        const player = p as { name: string; index: number; sessionId: string };
+        if (player.name === playerName) {
+          await set(ref(db, `rooms/${roomCode}/players/${key}/sessionId`), sessionId);
+          onDisconnect(ref(db, `rooms/${roomCode}/players/${key}`)).remove();
+          break;
+        }
+      }
+    }
+
+    const isHost = roomData.hostSession === existingPlayer.sessionId ||
+      players.sort((a, b) => a.index - b.index)[0]?.name === playerName;
+    setupRoomListeners(roomCode, sessionId, callbacks);
+    return { success: true, isHost };
+  }
+
+  // Not in room yet — do a normal join
+  const joined = await joinRoom(roomCode, playerName, null, callbacks);
+  if (joined) {
+    const newRoomSnap = await get(roomRef);
+    const newRoom = newRoomSnap.val() as FirebaseRoom;
+    const newPlayers = Object.values(newRoom.players || {}) as { name: string; index: number; sessionId: string }[];
+    const isHost = newPlayers.sort((a, b) => a.index - b.index)[0]?.name === playerName;
+    return { success: true, isHost };
+  }
+
+  return { success: false, isHost: false, error: 'Could not join room' };
+}
