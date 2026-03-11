@@ -9,6 +9,7 @@ import {
   resumeMultiplayerGame as fbResumeGame,
   getCurrentRoomId,
 } from '../firebaseMultiplayer';
+import { useCardGame as useCardGameStore } from '../useCardGame';
 import { initializeGame } from '../engine';
 import type { FirebaseCallbacks } from '../firebaseMultiplayer';
 
@@ -70,8 +71,14 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({ onBack }) =>
     const room = params.get('room');
     if (room) setJoinCode(room);
     return () => {
+      // Only leave the room if we're cleaning up without the game having started.
+      // If the game started, MultiplayerLobby unmounts to show GameBoard — don't disconnect.
       if (statusRef.current === 'waiting' && getCurrentRoomId()) {
-        fbLeaveRoom();
+        // Check if game started by looking at zustand phase
+        const gamePhase = useCardGameStore.getState().phase;
+        if (gamePhase === 'menu') {
+          fbLeaveRoom();
+        }
       }
     };
   }, []);
