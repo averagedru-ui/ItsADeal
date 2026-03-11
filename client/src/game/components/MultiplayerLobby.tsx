@@ -6,6 +6,7 @@ import {
   rejoinRoom as fbRejoinRoom,
   leaveRoom as fbLeaveRoom,
   startGame as fbStartGame,
+  resumeMultiplayerGame as fbResumeGame,
   getCurrentRoomId,
 } from '../firebaseMultiplayer';
 import { initializeGame } from '../engine';
@@ -30,6 +31,10 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({ onBack }) =>
 
   const setMultiplayerState = useCardGame(s => s.setMultiplayerState);
   const addChatMessage = useCardGame(s => s.addChatMessage);
+  const hasSavedMPGame = useCardGame(s => s.hasSavedMPGame);
+  const getSavedMPInfo = useCardGame(s => s.getSavedMPInfo);
+  const clearSavedMPGame = useCardGame(s => s.clearSavedMPGame);
+  const savedMP = getSavedMPInfo();
 
   // Stable refs so Firebase listeners never hold stale closures
   const setMultiplayerStateRef = useRef(setMultiplayerState);
@@ -134,6 +139,31 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({ onBack }) =>
     } catch {
       setError('Failed to rejoin room');
       setStatus('error');
+    }
+  };
+
+  const handleResumeGame = async () => {
+    if (!savedMP) return;
+    setStatus('joining');
+    setError('');
+    try {
+      const result = await fbResumeGame(
+        savedMP.roomCode,
+        savedMP.playerName,
+        savedMP.myPlayerIndex,
+        callbacks
+      );
+      if (result.success) {
+        setRoomId(savedMP.roomCode);
+        setStatus('waiting');
+      } else {
+        clearSavedMPGame();
+        setError(result.error || 'Could not resume — the room may have ended');
+        setStatus('idle');
+      }
+    } catch {
+      setError('Failed to resume game');
+      setStatus('idle');
     }
   };
 
@@ -253,6 +283,23 @@ export const MultiplayerLobby: React.FC<MultiplayerLobbyProps> = ({ onBack }) =>
             className="w-full px-4 py-3 rounded-xl bg-gray-700 border border-gray-600 text-white placeholder-gray-500 focus:border-indigo-500 focus:outline-none transition-colors"
           />
         </div>
+
+        {savedMP && (
+          <div className="mb-4 p-3 bg-emerald-900/30 border border-emerald-700/50 rounded-xl">
+            <p className="text-emerald-300 text-xs font-semibold mb-0.5">Saved game found</p>
+            <p className="text-gray-400 text-xs mb-2">Room <span className="text-white font-bold tracking-widest">{savedMP.roomCode}</span> · as {savedMP.playerName}</p>
+            <div className="flex gap-2">
+              <button onClick={handleResumeGame}
+                className="flex-1 py-2 bg-emerald-600 text-white font-bold text-sm rounded-lg hover:bg-emerald-500 active:scale-95 transition-all">
+                Resume
+              </button>
+              <button onClick={() => { clearSavedMPGame(); }}
+                className="py-2 px-3 bg-gray-700 text-gray-400 text-sm rounded-lg hover:bg-gray-600 active:scale-95 transition-all">
+                Discard
+              </button>
+            </div>
+          </div>
+        )}
 
         <button onClick={handleCreateRoom}
           disabled={status === 'creating'}
