@@ -32,3 +32,22 @@ canvas {
   height: 100% !important;
   touch-action: none;
 }
+/* Desktop scaling for the game board.
+   On mobile: full-screen as normal.
+   On desktop (≥768px): treat the board as a 420px-wide mobile layout
+   and scale it up proportionally to fill the viewport height. */
+.game-board-scaler {
+  width: 420px;
+  height: 100dvh;
+  position: relative;
+  transform-origin: top center;
+}
+
+@media (min-width: 768px) {
+  .game-board-scaler {
+    /* Scale up so the 420px mobile layout fills the screen.
+       We use CSS custom property set by JS for exact viewport-based scale. */
+    transform: scale(var(--board-scale, 1));
+    transform-origin: top left;
+  }
+}
