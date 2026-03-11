@@ -31,9 +31,43 @@ import {
   sendChatMessage as fbSendChat,
   leaveRoom as fbLeaveRoom,
   isConnected as fbIsConnected,
+  getCurrentRoomId as fbGetCurrentRoomId,
 } from './firebaseMultiplayer';
 
 const SAVE_KEY = 'its_a_deal_save';
+const MP_SAVE_KEY = 'its_a_deal_mp_save';
+
+interface MultiplayerSave {
+  roomCode: string;
+  myPlayerIndex: number;
+  playerName: string;
+  savedAt: number;
+}
+
+function saveMPSession(roomCode: string, myPlayerIndex: number, playerName: string) {
+  try {
+    const data: MultiplayerSave = { roomCode, myPlayerIndex, playerName, savedAt: Date.now() };
+    localStorage.setItem(MP_SAVE_KEY, JSON.stringify(data));
+  } catch {}
+}
+
+function loadMPSession(): MultiplayerSave | null {
+  try {
+    const raw = localStorage.getItem(MP_SAVE_KEY);
+    if (!raw) return null;
+    const data = JSON.parse(raw) as MultiplayerSave;
+    // Expire after 24 hours
+    if (Date.now() - data.savedAt > 24 * 60 * 60 * 1000) {
+      localStorage.removeItem(MP_SAVE_KEY);
+      return null;
+    }
+    return data;
+  } catch { return null; }
+}
+
+function clearMPSession() {
+  try { localStorage.removeItem(MP_SAVE_KEY); } catch {}
+}
 
 function saveToLocalStorage(state: GameState) {
   try {
@@ -107,7 +141,10 @@ interface CardGameStore extends GameState {
   hasSavedGame: () => boolean;
   getSavedGameInfo: () => { turnNumber: number; playerCount: number } | null;
   clearSavedGame: () => void;
-  returnToMenu: () => void;
+  hasSavedMPGame: () => boolean;
+  getSavedMPInfo: () => MultiplayerSave | null;
+  clearSavedMPGame: () => void;
+  returnToMenu: (clearMPSave?: boolean) => void;
   sendChat: (text: string) => void;
   addChatMessage: (msg: Omit<ChatMessage, 'id'>) => void;
 }
@@ -644,6 +681,10 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
   setMultiplayerState: (serverState: Partial<GameState>, playerIndex: number) => {
     if (!serverState.players) return;
     set({ ...serverState, myPlayerIndex: playerIndex, isMultiplayer: true } as any);
+    // Persist MP session so player can resume if they disconnect
+    const roomCode = fbGetCurrentRoomId();
+    const playerName = serverState.players[playerIndex]?.name || '';
+    if (roomCode) saveMPSession(roomCode, playerIndex, playerName);
   },
 
   setMultiplayerWs: (ws: WebSocket | null) => {
@@ -695,7 +736,11 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
     clearSave();
   },
 
-  returnToMenu: () => {
+  hasSavedMPGame: () => loadMPSession() !== null,
+  getSavedMPInfo: () => loadMPSession(),
+  clearSavedMPGame: () => clearMPSession(),
+
+  returnToMenu: (clearMPSave?: boolean) => {
     const state = get();
     if (saveTimeout) {
       clearTimeout(saveTimeout);
@@ -705,6 +750,7 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
       state.multiplayerWs.close();
     }
     if (state.isMultiplayer && fbIsConnected()) {
+      if (clearMPSave) clearMPSession();
       fbLeaveRoom();
     }
     set({
