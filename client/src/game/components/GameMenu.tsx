@@ -3,10 +3,12 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useCardGame } from '../useCardGame';
 import { getCompleteSets, getTotalBankValue } from '../engine';
 import { RulesScreen } from './RulesScreen';
+import { getCurrentRoomId } from '../firebaseMultiplayer';
 
 export const GameMenu: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [showRules, setShowRules] = useState(false);
+  const [codeCopied, setCodeCopied] = useState(false);
   const players = useCardGame(s => s.players);
   const myPlayerIndex = useCardGame(s => s.myPlayerIndex);
   const isMultiplayer = useCardGame(s => s.isMultiplayer);
@@ -17,19 +19,27 @@ export const GameMenu: React.FC = () => {
   const humanPlayer = players[myPlayerIndex];
   const completeSets = humanPlayer ? getCompleteSets(humanPlayer) : [];
   const bankValue = humanPlayer ? getTotalBankValue(humanPlayer) : 0;
+  const roomCode = isMultiplayer ? getCurrentRoomId() : null;
 
   const handleSaveAndQuit = () => {
-    if (!isMultiplayer) {
-      saveGame();
-    }
-    returnToMenu();
+    if (!isMultiplayer) saveGame();
+    // For multiplayer: session is already auto-saved in setMultiplayerState.
+    // Pass false so we DON'T wipe the MP save — they can resume later.
+    returnToMenu(false);
+    setIsOpen(false);
   };
 
   const handleQuitWithoutSaving = () => {
-    if (!isMultiplayer) {
-      clearSavedGame();
-    }
-    returnToMenu();
+    if (!isMultiplayer) clearSavedGame();
+    returnToMenu(true); // wipe MP save
+    setIsOpen(false);
+  };
+
+  const copyRoomCode = () => {
+    if (!roomCode) return;
+    navigator.clipboard.writeText(roomCode).catch(() => {});
+    setCodeCopied(true);
+    setTimeout(() => setCodeCopied(false), 2000);
   };
 
   if (showRules) {
@@ -69,6 +79,22 @@ export const GameMenu: React.FC = () => {
             <div className="px-5 py-3 border-b border-gray-700/40">
               <h2 className="text-white text-lg font-bold text-center">Menu</h2>
             </div>
+
+            {/* Room code strip for multiplayer */}
+            {roomCode && (
+              <button
+                onClick={copyRoomCode}
+                className="w-full px-5 py-2.5 bg-indigo-900/40 border-b border-indigo-800/30 flex items-center justify-between active:bg-indigo-900/60 transition-colors"
+              >
+                <div className="flex items-center gap-2">
+                  <span className="text-indigo-400 text-xs font-semibold uppercase tracking-wide">Room Code</span>
+                  <span className="text-white font-black text-base tracking-widest">{roomCode}</span>
+                </div>
+                <span className={`text-xs font-semibold px-2 py-0.5 rounded-md transition-colors ${codeCopied ? 'bg-green-600 text-white' : 'bg-indigo-700/60 text-indigo-300'}`}>
+                  {codeCopied ? 'Copied!' : 'Copy'}
+                </span>
+              </button>
+            )}
 
             {humanPlayer && (
               <div className="px-5 py-3">
@@ -113,20 +139,19 @@ export const GameMenu: React.FC = () => {
                 <span>📖</span> Rules
               </button>
 
-              {!isMultiplayer && (
-                <button
-                  onClick={handleSaveAndQuit}
-                  className="w-full py-3.5 bg-emerald-600 active:bg-emerald-500 text-white font-bold rounded-2xl transition-colors text-sm"
-                >
-                  Save & Quit
-                </button>
-              )}
+              {/* Save & quit — works for both solo and multiplayer */}
+              <button
+                onClick={handleSaveAndQuit}
+                className="w-full py-3.5 bg-emerald-600 active:bg-emerald-500 text-white font-bold rounded-2xl transition-colors text-sm"
+              >
+                {isMultiplayer ? '💾 Save & Leave (Rejoin Later)' : 'Save & Quit'}
+              </button>
 
               <button
                 onClick={handleQuitWithoutSaving}
                 className="w-full py-3.5 bg-gray-700 active:bg-gray-600 text-gray-300 font-bold rounded-2xl transition-colors text-sm"
               >
-                {isMultiplayer ? 'Leave Game' : 'Quit Without Saving'}
+                {isMultiplayer ? 'Leave Game (No Save)' : 'Quit Without Saving'}
               </button>
             </div>
           </motion.div>
