@@ -18,6 +18,7 @@ export const ActionPanel: React.FC = () => {
   const startTrade = useCardGame(s => s.startTrade);
   const respondTrade = useCardGame(s => s.respondTrade);
   const currentPlayerIndex = useCardGame(s => s.currentPlayerIndex);
+  const pendingDoubleRent = useCardGame(s => (s as any).pendingDoubleRent || 0);
   const myPlayerIndex = useCardGame(s => s.myPlayerIndex);
   const cardsPlayedThisTurn = useCardGame(s => s.cardsPlayedThisTurn);
 
@@ -443,7 +444,7 @@ export const ActionPanel: React.FC = () => {
         : (pendingAction.card?.colors || []).filter(c => ownedColors.includes(c));
 
       const isWildRent = pendingAction.type === 'wild_rent';
-      const doubleRentActive = (useCardGame.getState() as any).pendingDoubleRent > 0;
+      const doubleRentActive = pendingDoubleRent > 0;
 
       // For Wild Rent, if a color is already chosen (stored in pendingAction.selectedProperty), show player picker
       const chosenColor = (pendingAction as any).chosenRentColor as PropertyColor | undefined;
