@@ -280,7 +280,7 @@ export const CardHouseHome: React.FC<CardHouseHomeProps> = ({
             </button>
           ))}
         </div>
-        <p className="text-center text-gray-700 text-[9px] mt-2 tracking-widest uppercase">Card House · v1.1.8</p>
+        <p className="text-center text-gray-700 text-[9px] mt-2 tracking-widest uppercase">Card House · v1.1.9</p>
       </div>
     </div>
   );
