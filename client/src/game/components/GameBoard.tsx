@@ -93,6 +93,35 @@ export const GameBoard: React.FC = () => {
     };
   }, [phase, currentPlayerIndex, turnNumber, cardsPlayedThisTurn, pendingAction?.currentResponder, pendingAction?.targetPlayerId, pendingAction?.respondingPlayers?.length]);
 
+  // Desktop scaling: compute scale factor so 420px mobile layout fills the viewport
+  useEffect(() => {
+    const MOBILE_WIDTH = 420;
+    const updateScale = () => {
+      const vw = window.innerWidth;
+      const vh = window.innerHeight;
+      if (vw >= 768) {
+        // Scale to fit either width or height, whichever is more constraining
+        const scaleByWidth = vw / MOBILE_WIDTH;
+        const scaleByHeight = vh / vh; // height is always 100dvh so just 1
+        const scale = Math.min(scaleByWidth, scaleByHeight);
+        document.documentElement.style.setProperty('--board-scale', String(scale));
+        // Also reposition the scaler so it centers horizontally
+        const scalerEl = document.querySelector('.game-board-scaler') as HTMLElement;
+        if (scalerEl) {
+          const scaledWidth = MOBILE_WIDTH * scale;
+          scalerEl.style.marginLeft = `${(vw - scaledWidth) / 2}px`;
+        }
+      } else {
+        document.documentElement.style.setProperty('--board-scale', '1');
+        const scalerEl = document.querySelector('.game-board-scaler') as HTMLElement;
+        if (scalerEl) scalerEl.style.marginLeft = '0';
+      }
+    };
+    updateScale();
+    window.addEventListener('resize', updateScale);
+    return () => window.removeEventListener('resize', updateScale);
+  }, []);
+
   if (phase === 'game_over') {
     return <GameOverScreen />;
   }
@@ -120,7 +149,10 @@ export const GameBoard: React.FC = () => {
   };
 
   return (
-    <div className="h-[100dvh] flex flex-col bg-gray-900 overflow-hidden">
+    <div className="h-[100dvh] bg-gray-900 flex items-center justify-center overflow-hidden">
+    {/* On desktop, scale the mobile layout up to fill the screen comfortably */}
+    <div className="game-board-scaler">
+    <div className="h-[100dvh] w-full flex flex-col bg-gray-900 overflow-hidden" style={{height: '100dvh', width: '100%'}}>
       <TurnBanner />
       <ActionNotification />
 
@@ -214,6 +246,8 @@ export const GameBoard: React.FC = () => {
 
       <PlayerHand />
       <ActionPanel />
+    </div>
+    </div>
     </div>
   );
 };
