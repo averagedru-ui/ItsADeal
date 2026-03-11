@@ -49,6 +49,7 @@ export function initializeGame(playerCount: number, playerNames?: string[]): Gam
     cardsPlayedThisTurn: 0,
     pendingAction: null,
     pendingTrade: null,
+    pendingDoubleRent: 0,
     winner: null,
     turnNumber: 1,
     message: players[0].isAI ? `${players[0].name}'s turn...` : 'Your turn! Draw 2 cards.',
@@ -388,7 +389,7 @@ export function playActionCard(state: GameState, cardId: string): GameState | { 
       newState.discardPile.push(card);
       newState.cardsPlayedThisTurn++;
       // Mark that next rent played this turn is doubled
-      (newState as any).pendingDoubleRent = ((newState as any).pendingDoubleRent || 0) + 1;
+      newState.pendingDoubleRent = (newState.pendingDoubleRent || 0) + 1;
       addLog(newState, `${player.name} played Double Rent! Next rent is doubled`, 'action');
       if (newState.cardsPlayedThisTurn >= 3) return endTurn(newState);
       newState.phase = 'play';
@@ -666,10 +667,10 @@ export function resolveTargetAction(state: GameState, targetPlayerId: number, ta
         return newState;
       }
       // Apply Double Rent multiplier if active
-      const doubleCount = (newState as any).pendingDoubleRent || 0;
+      const doubleCount = newState.pendingDoubleRent || 0;
       if (doubleCount > 0) {
         rentAmount = rentAmount * Math.pow(2, doubleCount);
-        (newState as any).pendingDoubleRent = 0;
+        newState.pendingDoubleRent = 0;
         addLog(newState, `Double Rent applied! Rent is now $${rentAmount}M`, 'action');
       }
 
@@ -921,7 +922,7 @@ function advanceToNextPlayer(state: GameState): GameState {
   newState.pendingTrade = null;
   newState.turnNumber++;
   // Clear any pending double rent from previous turn
-  (newState as any).pendingDoubleRent = 0;
+  newState.pendingDoubleRent = 0;
 
   const nextPlayer = newState.players[newState.currentPlayerIndex];
   newState.phase = 'draw';
