@@ -2,6 +2,7 @@ import { db } from './firebase';
 import {
   ref,
   set,
+  update,
   get,
   push,
   onValue,
@@ -231,40 +232,30 @@ function setupRoomListeners(roomCode: string, sessionId: string, callbacks: Fire
   });
   unsubscribers.push(() => off(playersRef));
 
-  const gameStateRef = ref(db, `rooms/${roomCode}/gameState`);
-  const gameStateUnsub = onValue(gameStateRef, (snapshot) => {
-    const state = snapshot.val();
-    if (!state) return;
+  // Single source of truth: listen to the whole room object.
+  // startGame writes gameState + isStarted atomically, so when isStarted flips true
+  // the gameState is guaranteed to be present in the same snapshot.
+  let gameHasStarted = false;
+  const roomDataRef = ref(db, `rooms/${roomCode}`);
+  const roomDataUnsub = onValue(roomDataRef, (snapshot) => {
+    const room = snapshot.val();
+    if (!room) return;
 
-    const gameState = deserializeGameState(state);
-    if (!gameState) return;
+    if (room.isStarted && room.gameState) {
+      const gameState = deserializeGameState(room.gameState);
+      if (!gameState) return;
 
-    const roomRef = ref(db, `rooms/${roomCode}`);
-    get(roomRef).then(roomSnap => {
-      const room = roomSnap.val();
-      if (room?.isStarted) {
+      if (!gameHasStarted) {
+        // First time we see the game started — fire onGameStarted
+        gameHasStarted = true;
+        callbacks.onGameStarted(gameState, currentPlayerIndex);
+      } else {
+        // Subsequent updates (other players' moves)
         callbacks.onGameUpdate(gameState, currentPlayerIndex);
       }
-    });
-  });
-  unsubscribers.push(() => off(gameStateRef));
-
-  const startedRef = ref(db, `rooms/${roomCode}/isStarted`);
-  const startedUnsub = onValue(startedRef, (snapshot) => {
-    const isStarted = snapshot.val();
-    if (isStarted) {
-      get(ref(db, `rooms/${roomCode}/gameState`)).then(stateSnap => {
-        const state = stateSnap.val();
-        if (state) {
-          const gameState = deserializeGameState(state);
-          if (gameState) {
-            callbacks.onGameStarted(gameState, currentPlayerIndex);
-          }
-        }
-      });
     }
   });
-  unsubscribers.push(() => off(startedRef));
+  unsubscribers.push(() => off(roomDataRef));
 
   const chatRef = ref(db, `rooms/${roomCode}/chat`);
   const chatUnsub = onChildAdded(chatRef, (snapshot) => {
@@ -280,8 +271,11 @@ export async function startGame(gameState: GameState): Promise<boolean> {
   if (!currentRoomId) return false;
 
   const serialized = serializeGameState(gameState);
-  await set(ref(db, `rooms/${currentRoomId}/gameState`), serialized);
-  await set(ref(db, `rooms/${currentRoomId}/isStarted`), true);
+  // Write atomically so listeners never see isStarted=true without gameState present
+  await update(ref(db, `rooms/${currentRoomId}`), {
+    gameState: serialized,
+    isStarted: true,
+  });
 
   return true;
 }
