@@ -141,11 +141,11 @@ export const PropertyArea: React.FC<PropertyAreaProps> = ({ player, compact, onP
                   {cards.length}/{setInfo.needed}
                 </span>
                 {isComplete && <span className="text-[7px]">&#x2B50;</span>}
+                {player.hasHouse[color] && <span className="text-[8px]">🏡</span>}
+                {player.hasHotel[color] && <span className="text-[8px]">🏨</span>}
                 {!compact && (
                   <span className="text-[7px] text-gray-500">
                     ${rent}M
-                    {player.hasHouse[color] && ' 🏡'}
-                    {player.hasHotel[color] && ' 🏨'}
                   </span>
                 )}
               </div>
