@@ -630,12 +630,20 @@ export function resolveTargetAction(state: GameState, targetPlayerId: number, ta
     case 'sly_deal': {
       if (!targetColor || !targetCardId) return state;
       if (playerHasJustSayNo(target)) {
+        if (target.isAI) {
+          const jsnIdx = target.hand.findIndex((c: Card) => c.actionType === 'just_say_no');
+          if (jsnIdx !== -1) {
+            const jsnCard = target.hand.splice(jsnIdx, 1)[0];
+            newState.discardPile.push(jsnCard);
+            addLog(newState, `${target.name} blocks Sly Deal with Just Say No!`, 'action');
+            newState.pendingAction = null;
+            return returnToPlay(newState);
+          }
+        }
         newState.phase = 'action_response';
         newState.pendingAction!.targetPlayerId = targetPlayerId;
         newState.pendingAction!.pendingTargets = [{ playerId: targetPlayerId, color: targetColor, cardId: targetCardId }];
-        newState.message = target.isAI
-          ? `${target.name} considers blocking the steal...`
-          : `${source.name} wants to steal your property! Play Just Say No?`;
+        newState.message = `${source.name} wants to steal your property! Play Just Say No?`;
         return newState;
       }
       return performSlyDeal(newState, action.sourcePlayerId, targetPlayerId, targetColor, targetCardId);
@@ -747,12 +755,20 @@ export function resolveTargetAction(state: GameState, targetPlayerId: number, ta
       const offered = action.offeredProperty;
       if (!offered) return state;
       if (playerHasJustSayNo(target)) {
+        if (target.isAI) {
+          const jsnIdx = target.hand.findIndex((c: Card) => c.actionType === 'just_say_no');
+          if (jsnIdx !== -1) {
+            const jsnCard = target.hand.splice(jsnIdx, 1)[0];
+            newState.discardPile.push(jsnCard);
+            addLog(newState, `${target.name} blocks Forced Deal with Just Say No!`, 'action');
+            newState.pendingAction = null;
+            return returnToPlay(newState);
+          }
+        }
         newState.phase = 'action_response';
         newState.pendingAction!.targetPlayerId = targetPlayerId;
         newState.pendingAction!.pendingTargets = [{ playerId: targetPlayerId, color: targetColor, cardId: targetCardId }];
-        newState.message = target.isAI
-          ? `${target.name} considers blocking the swap...`
-          : `${source.name} wants to swap properties! Play Just Say No?`;
+        newState.message = `${source.name} wants to swap properties! Play Just Say No?`;
         return newState;
       }
       return performForcedDeal(newState, action.sourcePlayerId, targetPlayerId, targetColor, targetCardId, offered);
