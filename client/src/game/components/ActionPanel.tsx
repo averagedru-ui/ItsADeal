@@ -285,42 +285,43 @@ export const ActionPanel: React.FC = () => {
       if (stealable.length === 0) {
         return (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
+            <div className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
               <h3 className="text-white text-lg font-bold mb-3">No properties to steal!</h3>
               <button
-                onClick={() => {
+                onPointerDown={() => {
                   useCardGame.setState((s) => ({
                     pendingAction: null,
                     phase: 'play' as const,
                     message: `Play up to 3 cards (${3 - s.cardsPlayedThisTurn} remaining)`,
                   }));
                 }}
-                className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+                className="w-full py-3 bg-gray-700 text-white rounded-lg text-base font-semibold"
               >
                 OK
               </button>
-            </motion.div>
+            </div>
           </div>
         );
       }
 
       return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600 max-h-[80vh] overflow-y-auto">
+          <div className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600 max-h-[80vh] overflow-y-auto" style={{ touchAction: 'pan-y' }}>
             <h3 className="text-white text-lg font-bold mb-3">Choose a property to steal</h3>
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-2">
               {stealable.map(item => (
-                <button key={item.cardId} onClick={() => selectTarget(item.playerId, item.color, item.cardId)}
-                  className="py-2 px-3 rounded-lg bg-gray-700 text-white text-sm font-medium hover:bg-gray-600 active:scale-95 flex justify-between items-center transition-all">
+                <button key={item.cardId}
+                  onPointerDown={() => { console.log('[SlyDeal] selecting', item); selectTarget(item.playerId, item.color, item.cardId); }}
+                  className="py-3 px-3 rounded-lg bg-gray-700 text-white text-sm font-medium flex justify-between items-center">
                   <span>{item.cardName}</span>
-                  <span className="text-gray-400 text-xs">{item.playerName} - {PROPERTY_SETS[item.color].label}</span>
+                  <span className="text-gray-400 text-xs">{item.playerName} · {PROPERTY_SETS[item.color].label}</span>
                 </button>
               ))}
             </div>
-            <button onClick={cancelAction} className="w-full mt-3 py-2 px-4 rounded-xl bg-gray-700/50 text-gray-400 text-sm font-medium hover:bg-gray-700 active:scale-95 transition-all">
+            <button onPointerDown={cancelAction} className="w-full mt-3 py-3 rounded-xl bg-gray-700/50 text-gray-400 text-sm font-medium">
               Cancel
             </button>
-          </motion.div>
+          </div>
         </div>
       );
     }
@@ -345,39 +346,40 @@ export const ActionPanel: React.FC = () => {
       if (stealable.length === 0) {
         return (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
+            <div className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
               <h3 className="text-white text-lg font-bold mb-2">No properties to swap!</h3>
               <p className="text-gray-400 text-xs mb-3">
                 {allOpponentProps.length === 0
                   ? 'Opponents have no properties yet.'
                   : 'All opponent properties are in complete sets and cannot be taken.'}
               </p>
-              <button onClick={cancelAction} className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600">
+              <button onPointerDown={cancelAction} className="w-full py-3 bg-gray-700 text-white rounded-lg text-base font-semibold">
                 Cancel
               </button>
-            </motion.div>
+            </div>
           </div>
         );
       }
 
       return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600 max-h-[80vh] overflow-y-auto">
+          <div className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600 max-h-[80vh] overflow-y-auto" style={{ touchAction: 'pan-y' }}>
             <h3 className="text-white text-lg font-bold mb-1">Choose opponent's property to take</h3>
             <p className="text-gray-400 text-sm mb-3">Offering: {pendingAction.offeredProperty.card.name}</p>
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-2">
               {stealable.map(item => (
-                <button key={item.cardId} onClick={() => selectTarget(item.playerId, item.color, item.cardId)}
-                  className="py-2 px-3 rounded-lg bg-gray-700 text-white text-sm font-medium hover:bg-gray-600 active:scale-95 flex justify-between items-center transition-all">
+                <button key={item.cardId}
+                  onPointerDown={() => { console.log('[ForcedDeal] selecting', item); selectTarget(item.playerId, item.color, item.cardId); }}
+                  className="py-3 px-3 rounded-lg bg-gray-700 text-white text-sm font-medium flex justify-between items-center">
                   <span>{item.cardName}</span>
-                  <span className="text-gray-400 text-xs">{item.playerName} - {PROPERTY_SETS[item.color].label}</span>
+                  <span className="text-gray-400 text-xs">{item.playerName} · {PROPERTY_SETS[item.color].label}</span>
                 </button>
               ))}
             </div>
-            <button onClick={cancelAction} className="w-full mt-3 py-2 px-4 rounded-xl bg-gray-700/50 text-gray-400 text-sm font-medium hover:bg-gray-700 active:scale-95 transition-all">
+            <button onPointerDown={cancelAction} className="w-full mt-3 py-3 rounded-xl bg-gray-700/50 text-gray-400 text-sm font-medium">
               Cancel
             </button>
-          </motion.div>
+          </div>
         </div>
       );
     }
@@ -395,33 +397,34 @@ export const ActionPanel: React.FC = () => {
       if (stealableSets.length === 0) {
         return (
           <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-            <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
+            <div className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
               <h3 className="text-white text-lg font-bold mb-3">No complete sets to steal!</h3>
               <button
-                onClick={() => {
+                onPointerDown={() => {
                   useCardGame.setState((s) => ({
                     pendingAction: null,
                     phase: 'play' as const,
                     message: `Play up to 3 cards (${3 - s.cardsPlayedThisTurn} remaining)`,
                   }));
                 }}
-                className="w-full py-2 bg-gray-700 text-white rounded-lg hover:bg-gray-600"
+                className="w-full py-3 bg-gray-700 text-white rounded-lg text-base font-semibold"
               >
                 OK
               </button>
-            </motion.div>
+            </div>
           </div>
         );
       }
 
       return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
+          <div className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600">
             <h3 className="text-white text-lg font-bold mb-3">Choose a complete set to steal</h3>
             <div className="flex flex-col gap-2">
               {stealableSets.map(item => (
-                <button key={`${item.playerId}-${item.color}`} onClick={() => selectTarget(item.playerId, item.color)}
-                  className="py-3 px-4 rounded-xl bg-gray-700 text-white font-semibold hover:bg-gray-600 active:scale-95 flex justify-between items-center transition-all">
+                <button key={`${item.playerId}-${item.color}`}
+                  onPointerDown={() => { console.log('[DealBreaker] selecting', item); selectTarget(item.playerId, item.color); }}
+                  className="py-3 px-4 rounded-xl bg-gray-700 text-white font-semibold flex justify-between items-center">
                   <div className="flex items-center gap-2">
                     <div className={`w-3 h-3 rounded-full ${PROPERTY_SETS[item.color].bgClass}`} />
                     <span>{PROPERTY_SETS[item.color].label} Set</span>
@@ -430,10 +433,10 @@ export const ActionPanel: React.FC = () => {
                 </button>
               ))}
             </div>
-            <button onClick={cancelAction} className="w-full mt-3 py-2 px-4 rounded-xl bg-gray-700/50 text-gray-400 text-sm font-medium hover:bg-gray-700 active:scale-95 transition-all">
+            <button onPointerDown={cancelAction} className="w-full mt-3 py-3 rounded-xl bg-gray-700/50 text-gray-400 text-sm font-medium">
               Cancel
             </button>
-          </motion.div>
+          </div>
         </div>
       );
     }
@@ -604,12 +607,13 @@ export const ActionPanel: React.FC = () => {
     if (!pendingAction.offeredProperty) {
       return (
         <div className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 p-4">
-          <motion.div initial={{ scale: 0.9, opacity: 0 }} animate={{ scale: 1, opacity: 1 }} className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600 max-h-[80vh] overflow-y-auto">
+          <div className="bg-gray-800 rounded-2xl p-4 md:p-6 max-w-md w-full border border-gray-600 max-h-[80vh] overflow-y-auto" style={{ touchAction: 'pan-y' }}>
             <h3 className="text-white text-lg font-bold mb-3">Choose your property to offer</h3>
-            <div className="flex flex-col gap-1.5">
+            <div className="flex flex-col gap-2">
               {myProperties.map(item => (
-                <button key={item.cardId} onClick={() => setForcedDealOffer(item.color, item.cardId)}
-                  className="py-2 px-3 rounded-lg bg-gray-700 text-white text-sm font-medium hover:bg-gray-600 active:scale-95 flex justify-between items-center gap-2 transition-all">
+                <button key={item.cardId}
+                  onPointerDown={() => { console.log('[ForcedDealPick] offering', item); setForcedDealOffer(item.color, item.cardId); }}
+                  className="py-3 px-3 rounded-lg bg-gray-700 text-white text-sm font-medium flex justify-between items-center gap-2">
                   <span className="truncate min-w-0 flex-1 text-left">{item.cardName}</span>
                   <span className="text-gray-400 text-xs flex-shrink-0">{PROPERTY_SETS[item.color].label}</span>
                 </button>
@@ -618,10 +622,10 @@ export const ActionPanel: React.FC = () => {
                 <p className="text-gray-400 text-sm">No properties to offer!</p>
               )}
             </div>
-            <button onClick={cancelAction} className="w-full mt-3 py-2 px-4 rounded-xl bg-gray-700/50 text-gray-400 text-sm font-medium hover:bg-gray-700 active:scale-95 transition-all">
+            <button onPointerDown={cancelAction} className="w-full mt-3 py-3 rounded-xl bg-gray-700/50 text-gray-400 text-sm font-medium">
               Cancel
             </button>
-          </motion.div>
+          </div>
         </div>
       );
     }
