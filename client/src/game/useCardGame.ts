@@ -244,6 +244,7 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
 
   playAction: (cardId: string) => {
     const state = get();
+    console.log('[playAction] called', { cardId, phase: state.phase, cardsPlayed: state.cardsPlayedThisTurn });
     if (state.isMultiplayer) {
       if (state.phase !== 'play' || state.currentPlayerIndex !== state.myPlayerIndex) return;
       const result = playActionCard(state, cardId);
@@ -254,7 +255,10 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
       }
       return;
     }
-    if (state.phase !== 'play') return;
+    if (state.phase !== 'play') {
+      console.warn('[playAction] BLOCKED - phase is:', state.phase, 'cardId:', cardId);
+      return;
+    }
     const card = state.players[state.currentPlayerIndex]?.hand.find(c => c.id === cardId);
     if (card && state.currentPlayerIndex === state.myPlayerIndex) {
       useProfile.getState().setUsedAction();
@@ -306,6 +310,7 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
 
   selectTarget: (targetPlayerId: number, targetColor?: PropertyColor, targetCardId?: string) => {
     const state = get();
+    console.log('[selectTarget] called', { phase: state.phase, pendingAction: state.pendingAction?.type, targetPlayerId, targetColor, targetCardId });
     if (state.isMultiplayer) {
       const newState = resolveTargetAction(state, targetPlayerId, targetColor, targetCardId);
       processAndSyncMultiplayer(newState, get, set);
@@ -313,9 +318,16 @@ export const useCardGame = create<CardGameStore>((set, get) => ({
     }
     // Allow action_target (deal_breaker, house, hotel, rent, sly_deal) and forced_deal_pick
     const allowedPhases = ['action_target', 'forced_deal_pick'];
-    if (!allowedPhases.includes(state.phase)) return;
-    if (!state.pendingAction) return;
+    if (!allowedPhases.includes(state.phase)) {
+      console.warn('[selectTarget] BLOCKED - wrong phase:', state.phase);
+      return;
+    }
+    if (!state.pendingAction) {
+      console.warn('[selectTarget] BLOCKED - no pendingAction');
+      return;
+    }
     const newState = resolveTargetAction(state, targetPlayerId, targetColor, targetCardId);
+    console.log('[selectTarget] resolved → new phase:', newState.phase, 'pendingAction:', newState.pendingAction?.type);
     set(newState);
     autoSave(newState, false);
   },
