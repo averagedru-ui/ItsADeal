@@ -364,6 +364,15 @@ export function playActionCard(state: GameState, cardId: string): GameState | { 
 
     case 'rent':
     case 'wild_rent': {
+      // Check for valid colors to charge BEFORE consuming the card
+      const validRentColors = card.actionType === 'wild_rent'
+        ? (Object.keys(player.properties) as PropertyColor[]).filter(c => player.properties[c].length > 0)
+        : (card.colors || []).filter(c => player.properties[c]?.length > 0);
+      if (validRentColors.length === 0) {
+        newState.message = '⚠️ You have no matching properties to charge rent on!';
+        newState.phase = 'play';
+        return newState;
+      }
       player.hand.splice(cardIndex, 1);
       newState.discardPile.push(card);
       newState.cardsPlayedThisTurn++;
@@ -372,7 +381,6 @@ export function playActionCard(state: GameState, cardId: string): GameState | { 
         type: card.actionType!,
         sourcePlayerId: player.id,
         card,
-        // doubleRent: check if player has double rent in hand (will be applied at color selection)
         canSayNo: false,
       };
       newState.phase = 'action_target';
@@ -615,6 +623,7 @@ export function resolveDebtPayment(state: GameState, payerId: number, cardIds: s
 export function resolveTargetAction(state: GameState, targetPlayerId: number, targetColor?: PropertyColor, targetCardId?: string): GameState {
   const newState = deepCopy(state);
   const action = newState.pendingAction!;
+  console.log('[resolveTargetAction]', action?.type, { targetPlayerId, targetColor, targetCardId, phase: state.phase });
   const source = newState.players.find((p: Player) => p.id === action.sourcePlayerId)!;
   const target = newState.players.find((p: Player) => p.id === targetPlayerId)!;
 
